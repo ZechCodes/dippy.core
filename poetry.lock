@@ -49,7 +49,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "gully"
-version = "0.2.2"
+version = "0.2.3"
 description = "Simple real time data stream manipulation."
 category = "main"
 optional = false
@@ -109,7 +109,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "45f72c0b6f3711cde26c7e25df0d4f1b927074553a03216cae0950e7727267ab"
+content-hash = "73dcaacc12407ded961a70a7d105fd96810fd0753829267ee52c6c74308765f0"
 
 [metadata.files]
 aiohttp = [
@@ -164,8 +164,8 @@ chardet = [
     {file = "chardet-4.0.0.tar.gz", hash = "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa"},
 ]
 gully = [
-    {file = "gully-0.2.2-py3-none-any.whl", hash = "sha256:f8273268c1d7d14569eb03248e67a22966f2ccff1a55e1fa8d501b4b4a3fa6af"},
-    {file = "gully-0.2.2.tar.gz", hash = "sha256:69bcd6057d430cf3cb5da742e58efeda18919ffeae67e011a86ac1cfc8db547b"},
+    {file = "gully-0.2.3-py3-none-any.whl", hash = "sha256:30ab025c29d76c2d1315355b61e2828bf6ea272c2f527ab0878f2261b925633f"},
+    {file = "gully-0.2.3.tar.gz", hash = "sha256:5db9a8a9461b73235261a2fd16e36e6babf98ad8278b96e0d7226a337485dce4"},
 ]
 idna = [
     {file = "idna-3.1-py3-none-any.whl", hash = "sha256:5205d03e7bcbb919cc9c19885f9920d622ca52448306f2377daede5cf3faac16"},

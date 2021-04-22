@@ -1,18 +1,22 @@
 [tool.poetry]
 name = "Dippy.core"
-version = "0.0.1-alpha.0"
+version = "0.0.1-alpha.1"
 description = "Async Discord Gateway client."
 authors = ["Zech Zimmerman <hi@zech.codes>"]
 packages = [
     { include = "dippy" }
 ]
 license = "MIT"
+readme = "readme.md"
+homepage = "https://github.com/ZechCodes/dippy.core"
+repository = "https://github.com/ZechCodes/dippy.core"
+documentation = "https://github.com/ZechCodes/dippy.core/blob/main/readme.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 aiohttp = "^3.7.4"
 pydantic = "^1.8.1"
-gully = "^0.2.0"
+gully = "^0.2.3"
 
 [tool.poetry.dev-dependencies]
 
