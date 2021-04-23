@@ -1,9 +1,10 @@
 from aiohttp import client_exceptions, ClientSession, ClientWebSocketResponse, WSMsgType
-from dippy.core.gateway.payload import Payload
 from dippy.core.gateway.heartbeat import Heartbeat
+from dippy.core.gateway.event_mapper import event_mapper
+from dippy.core.gateway.payload import Payload
 from dippy.core.intents import Intents
 from gully import Gully, Observer
-from typing import Callable, Coroutine, Optional, Union
+from typing import Any, Callable, Coroutine, Optional, Union
 import asyncio
 import json
 import logging
@@ -15,10 +16,19 @@ import zlib
 class GatewayConnection:
     __gateway_version__ = 8
 
-    def __init__(self, token: str, *, loop: asyncio.AbstractEventLoop = None, **kwargs):
+    def __init__(
+        self,
+        token: str,
+        *,
+        event_map: Callable[[Payload], Any] = event_mapper,
+        loop: asyncio.AbstractEventLoop = None,
+        **kwargs,
+    ):
         self._client_events = Gully()
+        self._event_dispatch = self._client_events.map(event_map)
         self._connected = asyncio.Event()
         self._filters = {}
+        self._dispatch_filters = {}
         self._gateway_url = ""
         self._heartbeat = Heartbeat(self, loop=loop)
         self._log = logging.getLogger().getChild(type(self).__name__)
@@ -30,7 +40,7 @@ class GatewayConnection:
         self._observer: Optional[asyncio.Future] = None
         self._websocket = asyncio.Future()
 
-        self.on(self._ready, event="READY")
+        self.on_raw(self._ready, event="READY")
 
     @property
     def connected(self) -> bool:
@@ -59,6 +69,23 @@ class GatewayConnection:
             self._observer.cancel()
 
     def on(
+        self,
+        event: Optional[str],
+        callback: Union[Callable, Coroutine],
+    ) -> Observer:
+        event = event.casefold()
+        event = "*" if event in {"all", "*", "any"} else event
+        if event not in self._dispatch_filters:
+            self._dispatch_filters[event] = self._event_dispatch.filter(
+                lambda payload: (
+                    payload.event
+                    and (event == "*" or event == payload.event.casefold())
+                )
+            )
+
+        return self._dispatch_filters[event].watch(callback)
+
+    def on_raw(
         self,
         callback: Union[Callable, Coroutine],
         op_code: Optional[int] = None,
