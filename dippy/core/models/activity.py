@@ -3,7 +3,7 @@ from dippy.core.enums import ActivityType
 from dippy.core.models.model import DippyCoreModel
 from dippy.core.snowflake import Snowflake
 from pydantic import validator
-from typing import Optional
+from typing import Optional, Union
 
 
 class ActivityTimestampsModel(DippyCoreModel):
@@ -46,7 +46,7 @@ class ActivityButtonModel(DippyCoreModel):
 
 class ActivityModel(DippyCoreModel):
     created_at: datetime
-    id: Snowflake
+    id: Union[Snowflake, str]
     name: str
     type: ActivityType
     url: Optional[str]
