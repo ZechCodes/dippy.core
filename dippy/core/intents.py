@@ -37,6 +37,9 @@ class Intents(_IntEnum):
         | DIRECT_MESSAGE_TYPING
     )
 
+    ALL = DEFAULT | MEMBERS | PRESENCES
+
+    all = ALL
     bans = BANS
     default = DEFAULT
     direct_message_reactions = DIRECT_MESSAGE_REACTIONS
