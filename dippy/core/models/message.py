@@ -10,6 +10,7 @@ from dippy.core.models.role import RoleModel
 from dippy.core.models.sticker import StickerModel
 from dippy.core.models.user import UserModel
 from dippy.core.snowflake import Snowflake
+from pydantic import Field
 from typing import Optional, Union
 
 
@@ -38,24 +39,27 @@ class MessageModel(DippyCoreModel):
     guild_id: Optional[Snowflake]
     author: UserModel
     member: Optional[dict]
-    content: str
-    timestamp: datetime
+    content: Optional[str]
+    timestamp: Optional[datetime]
     edited_timestamp: Optional[datetime]
-    tts: bool
-    mention_everyone: bool
-    mentions: list[UserModel]
-    mention_roles: list[RoleModel]
+    tts: Optional[bool]
+    mention_everyone: Optional[bool]
+    mentions: list[UserModel] = Field(default_factory=list)
+    mention_roles: list[RoleModel] = Field(default_factory=list)
     mention_channel: Optional[list[ChannelMentionModel]]
-    attachments: list[AttachmentModel]
+    attachments: list[AttachmentModel] = Field(default_factory=list)
     embeds: list[EmbedModel]
     reactions: Optional[list[ReactionModel]]
     nonce: Optional[Union[int, str]]
-    pinned: bool
+    pinned: Optional[bool]
     webhook_id: Optional[Snowflake]
-    type: MessageType
+    type: Optional[MessageType]
     activity: Optional[MessageActivityModel]
     message_reference: Optional[MessageReferenceModel]
     flags: Optional[int]
     stickers: Optional[list[StickerModel]]
     referenced_message: Optional[MessageModel]
     interaction: Optional[MessageInteractionModel]
+
+
+MessageModel.update_forward_refs()
