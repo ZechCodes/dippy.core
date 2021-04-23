@@ -7,7 +7,7 @@ from typing import Optional
 
 class VoiceStateModel(DippyCoreModel):
     guild_id: Optional[Snowflake]
-    channel_id: Snowflake
+    channel_id: Optional[Snowflake]
     user_id: Snowflake
     member: Optional[MemberModel]
     session_id: str
@@ -18,4 +18,4 @@ class VoiceStateModel(DippyCoreModel):
     self_stream: Optional[bool]
     self_video: bool
     suppress: bool
-    request_to_speak_timestamp: datetime
+    request_to_speak_timestamp: Optional[datetime]
