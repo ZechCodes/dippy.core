@@ -60,4 +60,4 @@ class ActivityModel(DippyCoreModel):
     secrets: Optional[ActivitySecretModel]
     instance: Optional[bool]
     flags: Optional[int]
-    buttons: Optional[list[ActivityButtonModel]]
+    buttons: Optional[list[Union[ActivityButtonModel, str]]]
