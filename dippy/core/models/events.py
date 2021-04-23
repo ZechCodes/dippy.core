@@ -229,7 +229,7 @@ class EventVoiceServerUpdate(_EventModel):
     endpoint: Optional[str]
 
 
-class EventWebhookUpdate(_EventModel):
+class EventWebhooksUpdate(_EventModel):
     guild_id: Snowflake
     channel_id: Snowflake
 
