@@ -21,11 +21,11 @@ class Heartbeat:
         self._last_acknowledgement = time.time()
 
         # Immediate heartbeat requested
-        self._gateway.on(self._send_immediately, op_code=1)
+        self._gateway.on_raw(self._send_immediately, op_code=1)
         # Heartbeat interval settings
-        self._gateway.on(self._start, op_code=10)
+        self._gateway.on_raw(self._start, op_code=10)
         # Heartbeat acknowledgement
-        self._gateway.on(self._note_acknowledgement, op_code=11)
+        self._gateway.on_raw(self._note_acknowledgement, op_code=11)
 
     @property
     def running(self) -> bool:
