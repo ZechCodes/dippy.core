@@ -208,7 +208,7 @@ class EventPresenceUpdate(_EventModel):
 
 
 class EventTypingStart(_EventModel):
-    channel_id: Snowflake
+    channel_id: Optional[Snowflake]
     guild_id: Optional[Snowflake]
     user_id: Snowflake
     timestamp: datetime
