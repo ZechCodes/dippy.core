@@ -5,7 +5,7 @@ from typing import Optional
 
 class AttachmentModel(DippyCoreModel):
     id: Snowflake
-    file: str
+    file: Optional[str]
     content_type: Optional[str]
     size: int
     url: str
