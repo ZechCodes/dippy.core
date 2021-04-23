@@ -44,9 +44,9 @@ class GuildModel(DippyCoreModel):
     splash: Optional[Union[int, str]]
     stage_instances: list
     system_channel_flags: int
-    system_channel_id: Snowflake
+    system_channel_id: Optional[Snowflake]
     threads: list
-    unavailable: bool
+    unavailable: Optional[bool]
     vanity_url_code: Optional[int]
     verification_level: int
     voice_states: list
