@@ -6,7 +6,7 @@ from dippy.core.models.model import DippyCoreModel
 from dippy.core.models.presence import PresenceModel
 from dippy.core.models.role import RoleModel
 from dippy.core.snowflake import Snowflake
-from typing import Optional
+from typing import Optional, Union
 
 
 class GuildModel(DippyCoreModel):
@@ -41,7 +41,7 @@ class GuildModel(DippyCoreModel):
     region: str
     roles: list[RoleModel]
     rules_channel_id: Optional[Snowflake]
-    splash: Optional[int]
+    splash: Optional[Union[int, str]]
     stage_instances: list
     system_channel_flags: int
     system_channel_id: Snowflake
