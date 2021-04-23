@@ -12,7 +12,7 @@ from dippy.core.models.presence import PresenceModel
 from dippy.core.models.role import RoleModel
 from dippy.core.models.user import UserModel
 from dippy.core.models.voice_state import VoiceStateModel
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
@@ -200,11 +200,15 @@ class EventMessageReactionRemoveEmoji(EventMessageReactionRemoveAll):
 
 
 class EventPresenceUpdate(_EventModel):
-    user: UserModel
+    user_id: Snowflake = Field(alias="user")
     guild_id: Snowflake
     status: str
     activities: list[ActivityModel]
     client_status: ClientStatusModel
+
+    @validator("user_id", pre=True)
+    def get_user_id(cls, value):
+        return Snowflake(value.get("id"))
 
 
 class EventTypingStart(_EventModel):
