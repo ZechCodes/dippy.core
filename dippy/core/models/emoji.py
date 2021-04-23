@@ -6,7 +6,7 @@ from typing import Optional
 
 
 class EmojiModel(DippyCoreModel):
-    id: Snowflake
+    id: Optional[Snowflake]
     name: str
     roles: Optional[list[RoleModel]]
     user: Optional[UserModel]
