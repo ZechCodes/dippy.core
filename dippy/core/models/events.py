@@ -29,10 +29,6 @@ EventChannelCreate = _make_event_object("EventChannelCreate", ChannelModel)
 EventChannelUpdate = _make_event_object("EventChannelUpdate", ChannelModel)
 EventChannelDelete = _make_event_object("EventChannelDelete", ChannelModel)
 
-EventGuildCreate = _make_event_object("EventGuildCreate", GuildModel)
-EventGuildUpdate = _make_event_object("EventGuildUpdate", GuildModel)
-EventGuildMemberAdd = _make_event_object("EventGuildMemberAdd", MemberModel)
-
 
 class EventReady(_EventModel):
     v: int
@@ -49,17 +45,19 @@ class EventChannelPinsUpdate(_EventModel):
 
 
 class _PartialGuildModel(_EventModel):
+    def __new__(cls, *args, **kwargs):
+        if not kwargs.get("unavailable", len(kwargs) <= 2):
+            return GuildModel(**kwargs)
+        return super().__new__(cls)
+
     id: Snowflake
-    unavailable: bool
+    unavailable: bool = Field(default=True)
 
 
-def _event_guild_delete(**kwargs):
-    if kwargs.get("unavailable", False):
-        return _PartialGuildModel(**kwargs)
-    return GuildModel(**kwargs)
-
-
-EventGuildDelete = _event_guild_delete
+EventGuildCreate = _make_event_object("EventGuildCreate", _PartialGuildModel)
+EventGuildUpdate = _make_event_object("EventGuildUpdate", _PartialGuildModel)
+EventGuildMemberAdd = _make_event_object("EventGuildMemberAdd", _PartialGuildModel)
+EventGuildDelete = _make_event_object("EventGuildDelete", _PartialGuildModel)
 
 
 class _EventGuildBanUpdate(_EventModel):
