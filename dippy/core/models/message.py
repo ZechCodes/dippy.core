@@ -37,7 +37,7 @@ class MessageModel(DippyCoreModel):
     id: Snowflake
     channel_id: Snowflake
     guild_id: Optional[Snowflake]
-    author: UserModel
+    author: Optional[UserModel]
     member: Optional[dict]
     content: Optional[str]
     timestamp: Optional[datetime]
