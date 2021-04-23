@@ -45,7 +45,7 @@ class MessageModel(DippyCoreModel):
     tts: Optional[bool]
     mention_everyone: Optional[bool]
     mentions: list[UserModel] = Field(default_factory=list)
-    mention_roles: list[RoleModel] = Field(default_factory=list)
+    mention_roles: list[Snowflake] = Field(default_factory=list)
     mention_channel: Optional[list[ChannelMentionModel]]
     attachments: list[AttachmentModel] = Field(default_factory=list)
     embeds: list[EmbedModel]
