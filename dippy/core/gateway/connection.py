@@ -1,4 +1,5 @@
 from aiohttp import client_exceptions, ClientSession, ClientWebSocketResponse, WSMsgType
+from dippy.core.enums import GatewayCode
 from dippy.core.gateway.heartbeat import Heartbeat
 from dippy.core.gateway.event_mapper import event_mapper
 from dippy.core.gateway.payload import Payload
@@ -88,7 +89,7 @@ class GatewayConnection:
     def on_raw(
         self,
         callback: Union[Callable, Coroutine],
-        op_code: Optional[int] = None,
+        op_code: Optional[GatewayCode] = None,
         event: Optional[str] = None,
     ) -> Observer:
         if (op_code, event) not in self._filters:
@@ -107,7 +108,7 @@ class GatewayConnection:
         self._log.info("Attempting to resume session")
         self._loop.create_task(self._resume())
         event: Payload = await self._client_events.next
-        if event.op_code == 9:
+        if event.op_code == GatewayCode.INVALID_SESSION:
             delay = random.uniform(1, 5)
             self._log.info(
                 f"Failed to resume session, sleeping {delay:.2f}s then re-authenticating"
@@ -183,7 +184,7 @@ class GatewayConnection:
             },
         }
         data.update(settings)
-        return self.send(Payload(op=2, d=data))
+        return self.send(Payload(op=GatewayCode.IDENTIFY, d=data))
 
     async def _observe(self, websocket: ClientWebSocketResponse):
         while self.connected:
@@ -211,7 +212,7 @@ class GatewayConnection:
     def _resume(self):
         return self.send(
             Payload(
-                op=6,
+                op=GatewayCode.RESUME,
                 d={
                     "token": self._token,
                     "session_id": self._session_id,

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+from dippy.core.enums import GatewayCode
 from dippy.core.gateway.payload import Payload
 from typing import Awaitable, Optional
 import asyncio
@@ -21,11 +23,13 @@ class Heartbeat:
         self._last_acknowledgement = time.time()
 
         # Immediate heartbeat requested
-        self._gateway.on_raw(self._send_immediately, op_code=1)
+        self._gateway.on_raw(self._send_immediately, op_code=GatewayCode.HEARTBEAT)
         # Heartbeat interval settings
-        self._gateway.on_raw(self._start, op_code=10)
+        self._gateway.on_raw(self._start, op_code=GatewayCode.HELLO)
         # Heartbeat acknowledgement
-        self._gateway.on_raw(self._note_acknowledgement, op_code=11)
+        self._gateway.on_raw(
+            self._note_acknowledgement, op_code=GatewayCode.HEARTBEAT_ACK
+        )
 
     @property
     def running(self) -> bool:
@@ -57,7 +61,10 @@ class Heartbeat:
                 return
 
         if self._gateway.connected:
-            await self._gateway.send(Payload(op=1, d=self._gateway.sequence_index))
+            await self._gateway.send(
+                Payload(op=GatewayCode.HEARTBEAT, d=self._gateway.sequence_index)
+            )
+            next_beat = datetime.utcnow() + timedelta(milliseconds=self._interval)
             self._log.debug(
                 f"Scheduling next heartbeat to be sent in {self._interval / 1000}s"
             )
