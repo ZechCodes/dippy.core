@@ -44,8 +44,9 @@ class Heartbeat:
 
     def _schedule_first_heartbeat(self):
         delay_ms = random.random() * self._interval
+        next_beat = datetime.utcnow() + timedelta(milliseconds=delay_ms)
         self._log.debug(
-            f"Scheduling first heartbeat to be sent in {delay_ms / 1000:0.2f}s"
+            f"Scheduling first heartbeat to be sent in {delay_ms/1000:.2f}s at {next_beat.isoformat(' ')} UTC"
         )
         self._schedule_next_heartbeat(delay_ms)
 
@@ -66,7 +67,7 @@ class Heartbeat:
             )
             next_beat = datetime.utcnow() + timedelta(milliseconds=self._interval)
             self._log.debug(
-                f"Scheduling next heartbeat to be sent in {self._interval / 1000}s"
+                f"Scheduling next heartbeat to be sent at {next_beat.isoformat(' ')} UTC"
             )
             self._schedule_next_heartbeat(self._interval)
 
