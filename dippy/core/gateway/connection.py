@@ -66,6 +66,7 @@ class GatewayConnection:
     async def disconnect(self, code=1000):
         if self._connected:
             self._log.info(f"Disconnecting from the gateway with code {code}")
+            self._connected.clear()
             ws: ClientWebSocketResponse = await self._websocket
             await ws.close(code=code)
             self._observer.cancel()
