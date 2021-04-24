@@ -196,9 +196,11 @@ class GatewayConnection:
                 WSMsgType.CLOSING,
                 WSMsgType.CLOSED,
             }:
-                raise ConnectionError(
-                    f"Gateway connection closed unexpectedly - {message}"
-                )
+                self._log.error(f"Gateway connection closed - {message}")
+                if self._connected.is_set():
+                    self._connected.clear()
+                    await self.resume()
+                    return
             elif message.type == WSMsgType.ERROR:
                 self._log.error(f"The connection returned an error: {message.data}")
                 raise message.data
