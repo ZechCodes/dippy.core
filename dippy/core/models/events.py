@@ -56,8 +56,9 @@ class _PartialGuildModel(_EventModel):
 
 EventGuildCreate = _make_event_object("EventGuildCreate", _PartialGuildModel)
 EventGuildUpdate = _make_event_object("EventGuildUpdate", _PartialGuildModel)
-EventGuildMemberAdd = _make_event_object("EventGuildMemberAdd", _PartialGuildModel)
 EventGuildDelete = _make_event_object("EventGuildDelete", _PartialGuildModel)
+
+EventGuildMemberAdd = _make_event_object("EventGuildMemberAdd", MemberModel)
 
 
 class _EventGuildBanUpdate(_EventModel):
