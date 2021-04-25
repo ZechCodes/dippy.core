@@ -1,3 +1,4 @@
+from bevy import Injectable
 from dippy.core.caching.cache import Cache
 from dippy.core.enums import Event as E
 from dippy.core.events import BaseEventStream
@@ -26,10 +27,11 @@ from dippy.core.interfaces.user import User
 from typing import Union
 
 
-class CacheManager:
+class CacheManager(Injectable):
+    events: BaseEventStream
+
     def __init__(
         self,
-        gateway: GatewayConnection,
         max_channels: int = 1000,
         max_guilds: int = 1_000,
         max_members: int = 10_000,
@@ -42,23 +44,23 @@ class CacheManager:
         self.members = Cache(max_members, Member)
         self.users = Cache(max_users, User)
 
-        gateway.on(E.CHANNEL_CREATE, self.channel_update)
-        gateway.on(E.CHANNEL_UPDATE, self.channel_update)
-        gateway.on(E.CHANNEL_DELETE, self.channel_remove)
+        self.events.on(E.CHANNEL_UPDATE, self.channel_update)
+        self.events.on(E.CHANNEL_CREATE, self.channel_update)
+        self.events.on(E.CHANNEL_DELETE, self.channel_remove)
 
-        gateway.on(E.GUILD_CREATE, self.guild_update)
-        gateway.on(E.GUILD_UPDATE, self.guild_update)
-        gateway.on(E.GUILD_DELETE, self.guild_remove)
+        self.events.on(E.GUILD_CREATE, self.guild_update)
+        self.events.on(E.GUILD_DELETE, self.guild_remove)
+        self.events.on(E.GUILD_UPDATE, self.guild_update)
 
-        gateway.on(E.GUILD_MEMBER_ADD, self.member_update)
-        gateway.on(E.GUILD_MEMBER_UPDATE, self.member_update)
-        gateway.on(E.GUILD_MEMBER_REMOVE, self.member_remove)
-        gateway.on(E.GUILD_MEMBERS_CHUNK, self.member_update_chunk)
+        self.events.on(E.GUILD_MEMBER_ADD, self.member_update)
+        self.events.on(E.GUILD_MEMBER_UPDATE, self.member_update)
+        self.events.on(E.GUILD_MEMBER_REMOVE, self.member_remove)
+        self.events.on(E.GUILD_MEMBERS_CHUNK, self.member_update_chunk)
 
-        gateway.on(E.MESSAGE_CREATE, self.message_update)
-        gateway.on(E.MESSAGE_UPDATE, self.message_update)
-        gateway.on(E.MESSAGE_DELETE, self.message_delete)
-        gateway.on(E.MESSAGE_DELETE_BULK, self.message_delete_bulk)
+        self.events.on(E.MESSAGE_CREATE, self.message_update)
+        self.events.on(E.MESSAGE_UPDATE, self.message_update)
+        self.events.on(E.MESSAGE_DELETE, self.message_delete)
+        self.events.on(E.MESSAGE_DELETE_BULK, self.message_delete_bulk)
 
     async def channel_update(
         self, event: Union[EventChannelCreate, EventChannelUpdate]
