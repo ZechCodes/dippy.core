@@ -1,6 +1,11 @@
 from __future__ import annotations
 from datetime import datetime
-from dippy.core.enums import InteractionResponseType, MessageActivityType, MessageType
+from dippy.core.enums import (
+    AllowedMention,
+    InteractionResponseType,
+    MessageActivityType,
+    MessageType,
+)
 from dippy.core.models.attachment import AttachmentModel
 from dippy.core.models.channel import ChannelMentionModel
 from dippy.core.models.embed import EmbedModel
@@ -10,7 +15,15 @@ from dippy.core.models.reaction import ReactionModel
 from dippy.core.models.sticker import StickerModel
 from dippy.core.models.user import UserModel
 from dippy.core.snowflake import Snowflake
+from pydantic import Field
 from typing import Optional, Union
+
+
+class AllowedMentions(DippyCoreModel):
+    parse: list[AllowedMention] = Field(default_factory=list)
+    roles: list[Snowflake] = Field(default_factory=list, max_items=100)
+    users: list[Snowflake] = Field(default_factory=list, max_items=100)
+    replied_user: bool = Field(default=False)
 
 
 class MessageActivityModel(DippyCoreModel):
