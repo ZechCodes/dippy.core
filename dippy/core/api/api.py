@@ -14,6 +14,7 @@ class DiscordAPI(BaseDiscordAPI, Injectable):
         self._log = logging.getLogger().getChild("dippy.core")
         self._token = token
         self._settings = kwargs
+        self._session: ClientSession = self._create_session()
 
     async def __aenter__(self):
         return self
@@ -42,3 +43,24 @@ class DiscordAPI(BaseDiscordAPI, Injectable):
             )
             self.context.add(gateway)
         return self.gateway.connect()
+
+    def _create_user_agent(self):
+        from dippy.core.version import (
+            __aiohttp_version__,
+            __python_version__,
+            __version__,
+        )
+
+        browser = self._settings.get("browser", "dippy.core")
+        repo = "https://github.com/ZechCodes/dippy.core"
+        return f"{browser} ({repo}, {__version__}), Python/{__python_version__}, aiohttp/{__aiohttp_version__}"
+
+    def _create_session(self) -> ClientSession:
+        user_agent = self._create_user_agent()
+        self._log.info(f"Connecting as {user_agent!r}")
+        return ClientSession(
+            headers={
+                "Authorization": f"Bot {self._token}",
+                "User-Agent": user_agent,
+            }
+        )
