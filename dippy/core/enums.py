@@ -220,3 +220,8 @@ class GuildFeature(StrEnum):
     VIP_REGIONS = "VIP_REGIONS"
     # Guild has enabled the welcome screen
     WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
+
+
+class MFALevel(IntEnum):
+    NONE = 0  # Guild has no MFA/2FA requirement for moderation actions
+    ELEVATED = 1  # Guild has a 2FA requirement for moderation actions
