@@ -1,20 +1,81 @@
 from __future__ import annotations
+from bevy import Factory, Injectable
+from dippy.core.api.request import Request
 from dippy.core.caching.cacheable import Cacheable
+from dippy.core.interfaces.message import Message
 from dippy.core.models.channel import *
+from dippy.core.models.embed import EmbedModel
+from dippy.core.models.message import AllowedMentions, MessageReferenceModel
 from dippy.core.timestamp import Timestamp
+from pydantic import BaseModel, Field, validator
 from gully import Gully
 
 
-class Channel(Cacheable):
+class SendMessageModel(BaseModel):
+    content: Optional[str] = Field(max_length=2000)
+    tts: bool = Field(default=False)
+    embed: Optional[EmbedModel]
+    allowed_mentions: Optional[AllowedMentions]
+    message_reference: Optional[MessageReferenceModel]
+
+
+class Channel(Cacheable, Injectable):
+    request: Factory[Request]
+
     def __init__(self, model: ChannelModel):
         self._model = model
         self._change_event_stream = Gully()
 
-    def update(self, model: ChannelModel):
-        self._model = self._model.copy(update=model.dict(exclude_unset=True))
+    async def delete(self):
+        await self.request(f"/channels/{self.id}").delete()
 
     def freeze(self) -> Channel:
         return Channel(self._model)
+
+    async def retrieve_message(self, message_id: Snowflake) -> list[Message]:
+        return await self.request(f"/channels/{self.id}/messages/{message_id}").get()
+
+    async def retrieve_messages(
+        self,
+        after: Optional[Message] = None,
+        around: Optional[Message] = None,
+        before: Optional[Message] = None,
+        limit: Optional[int] = None,
+    ) -> list[Message]:
+        args = {}
+        if after:
+            args["after"] = after.id
+        if around:
+            args["around"] = around.id
+        if before:
+            args["before"] = before.id
+        if limit is not None:
+            args["limit"] = limit
+        return await self.request(f"/channels/{self.id}/messages").get(**args)
+
+    async def send(
+        self,
+        content: Optional[str] = None,
+        embed: Optional[EmbedModel] = None,
+        tts: bool = False,
+        allowed_mentions: Optional[AllowedMentions] = None,
+        message_reference: Optional[MessageReferenceModel] = None,
+    ):
+        if not content and not embed:
+            raise ValueError("You must provide either message content or an embed")
+
+        message = SendMessageModel(
+            content=content,
+            embed=embed,
+            tts=tts,
+            allowed_mentions=allowed_mentions,
+            message_reference=message_reference,
+        )
+        endpoint = self.request(f"/channels/{self.id}/messages")
+        return await endpoint.post(**message.dict(exclude_none=True))
+
+    def update(self, model: ChannelModel):
+        self._model = self._model.copy(update=model.dict(exclude_unset=True))
 
     @property
     def created(self) -> Timestamp:
