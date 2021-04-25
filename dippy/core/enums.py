@@ -178,3 +178,12 @@ class VerificationLevel(IntEnum):
 class DefaultMessageNotificationLevel(IntEnum):
     ALL_MESSAGES = 0  # Members will receive notifications for all messages by default
     ONLY_MENTIONS = 1  # Members will receive notifications only for messages that @mention them by default
+
+
+class ExplicitContentFilterLevel(IntEnum):
+    # Media content will not be scanned
+    DISABLED = 0
+    # Media content sent by members without roles will be scanned
+    MEMBERS_WITHOUT_ROLES = 1
+    # Media content sent by all members will be scanned
+    ALL_MEMBERS = 2
