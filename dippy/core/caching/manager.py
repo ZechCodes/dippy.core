@@ -1,4 +1,5 @@
 from bevy import Context, Factory, Injectable
+from dippy.core.caching.bases import BaseCacheManager
 from dippy.core.caching.cache import Cache
 from dippy.core.enums import Event
 from dippy.core.events import BaseEventStream
@@ -27,7 +28,7 @@ from dippy.core.interfaces.user import User
 from typing import Union
 
 
-class CacheManager(Injectable):
+class CacheManager(BaseCacheManager, Injectable):
     context: Context
     events: BaseEventStream
 
@@ -39,11 +40,11 @@ class CacheManager(Injectable):
         max_messages: int = 1_000,
         max_users: int = 10_000,
     ):
-        self.channels = Cache(max_channels, Factory(Channel, self.context))
-        self.guilds = Cache(max_guilds, Factory(Guild, self.context))
-        self.messages = Cache(max_messages, Factory(Message, self.context))
-        self.members = Cache(max_members, Factory(Member, self.context))
-        self.users = Cache(max_users, Factory(User, self.context))
+        self._channels = Cache(max_channels, Factory(Channel, self.context))
+        self._guilds = Cache(max_guilds, Factory(Guild, self.context))
+        self._messages = Cache(max_messages, Factory(Message, self.context))
+        self._members = Cache(max_members, Factory(Member, self.context))
+        self._users = Cache(max_users, Factory(User, self.context))
 
         self.events.on(Event.CHANNEL_UPDATE, self.channel_update)
         self.events.on(Event.CHANNEL_CREATE, self.channel_update)
@@ -62,6 +63,26 @@ class CacheManager(Injectable):
         self.events.on(Event.MESSAGE_UPDATE, self.message_update)
         self.events.on(Event.MESSAGE_DELETE, self.message_delete)
         self.events.on(Event.MESSAGE_DELETE_BULK, self.message_delete_bulk)
+
+    @property
+    def channels(self) -> Cache[Channel]:
+        return self._channels
+
+    @property
+    def guilds(self) -> Cache[Guild]:
+        return self._guilds
+
+    @property
+    def messages(self) -> Cache[Message]:
+        return self._messages
+
+    @property
+    def members(self) -> Cache[Member]:
+        return self._members
+
+    @property
+    def users(self) -> Cache[User]:
+        return self._users
 
     async def channel_update(
         self, event: Union[EventChannelCreate, EventChannelUpdate]
