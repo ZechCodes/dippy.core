@@ -42,7 +42,7 @@ class GatewayConnection:
         self._websocket = asyncio.Future()
 
         self.on_raw(self._ready, event="READY")
-        self.on_raw(self.resume, op_code=GatewayCode.RECONNECT)
+        self.on_raw(self._reconnect, op_code=GatewayCode.RECONNECT)
 
     @property
     def connected(self) -> bool:
@@ -212,6 +212,9 @@ class GatewayConnection:
 
     async def _ready(self, payload: Payload):
         self._session_id = payload.data["session_id"]
+
+    async def _reconnect(self, _):
+        await self.resume()
 
     def _resume(self):
         return self.send(
