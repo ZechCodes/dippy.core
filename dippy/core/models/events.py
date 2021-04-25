@@ -100,12 +100,12 @@ class EventGuildIntegrationsUpdate(EventModel):
     guild_id: Snowflake
 
 
-class EventGuildMemberRemove(EventModel):
+class EventGuildMemberRemove(EventModel, Cacheable):
     guild_id: Snowflake
     user: UserModel
 
 
-class EventGuildMemberUpdate(EventModel):
+class EventGuildMemberUpdate(EventModel, Cacheable):
     guild_id: Snowflake
     roles: list[Snowflake]
     user: UserModel
