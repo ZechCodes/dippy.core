@@ -4,12 +4,14 @@ from dippy.core.api.bases import BaseDiscordAPI
 from dippy.core.gateway.bases import BaseGatewayConnection
 from dippy.core.gateway.connection import GatewayConnection
 from typing import Optional
+import logging
 
 
 class DiscordAPI(BaseDiscordAPI, Injectable):
     context: Context
 
     def __init__(self, token: str, **kwargs):
+        self._log = logging.getLogger().getChild("dippy.core")
         self._token = token
         self._settings = kwargs
 
