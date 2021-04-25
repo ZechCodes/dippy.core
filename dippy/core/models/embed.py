@@ -28,8 +28,8 @@ class EmbedFooterModel(DippyCoreModel):
 
 
 class EmbedFieldModel(DippyCoreModel):
-    name: str
-    value: str
+    title: str = Field(alias="name")
+    contents: str = Field(alias="value")
     inline: Optional[bool]
 
 
