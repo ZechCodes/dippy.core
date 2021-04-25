@@ -1,5 +1,6 @@
 from bevy import Context, Injectable
 from aiohttp import client_exceptions, ClientSession, ClientWebSocketResponse, WSMsgType
+from dippy.core.api.bases import BaseDiscordAPI
 from dippy.core.enums import GatewayCode, Event
 from dippy.core.events import BaseEventStream
 from dippy.core.gateway.bases import BaseGatewayConnection, BaseHeartbeat
@@ -19,6 +20,7 @@ import zlib
 class GatewayConnection(BaseGatewayConnection, Injectable):
     __gateway_version__ = 8
 
+    api: BaseDiscordAPI
     context: Context
     events: BaseEventStream
     loop: asyncio.AbstractEventLoop
@@ -106,26 +108,25 @@ class GatewayConnection(BaseGatewayConnection, Injectable):
             )
 
     async def _connect(self):
-        async with ClientSession() as session:
-            if not self.gateway:
-                await self._cache_gateway(session)
+        if not self.gateway:
+            await self._cache_gateway(self.api.session)
 
-            try:
-                ws = await self._create_websocket(session)
-                self._websocket.set_result(ws)
-                self._connected.set()
-                self._observer = self.loop.create_task(self._observe(ws))
-                await self._observer
-            except client_exceptions.ClientConnectorError:
-                raise ConnectionError(
-                    f"Gateway connection failed, attempted to connect to {self.gateway!r}, it may be out of date"
-                )
-            else:
-                if ws and not ws.closed:
-                    await ws.close()
-            finally:
-                self._connected.clear()
-                self._websocket = asyncio.Future()
+        try:
+            ws = await self._create_websocket(self.api.session)
+            self._websocket.set_result(ws)
+            self._connected.set()
+            self._observer = self.loop.create_task(self._observe(ws))
+            await self._observer
+        except client_exceptions.ClientConnectorError:
+            raise ConnectionError(
+                f"Gateway connection failed, attempted to connect to {self.gateway!r}, it may be out of date"
+            )
+        else:
+            if ws and not ws.closed:
+                await ws.close()
+        finally:
+            self._connected.clear()
+            self._websocket = asyncio.Future()
 
     async def _create_websocket(
         self, session: ClientSession
