@@ -22,7 +22,7 @@ class MessageReferenceModel(DippyCoreModel):
     message_id: Optional[Snowflake]
     channel_id: Optional[Snowflake]
     guild_id: Optional[Snowflake]
-    fail_if_not_exists: Optional[bool]
+    fail_if_not_exists: Optional[bool] = Field(default=True)
 
 
 class MessageInteractionModel(DippyCoreModel):
