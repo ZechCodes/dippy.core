@@ -231,3 +231,10 @@ class ChannelFlag(IntEnum):
     SUPPRESS_JOIN_NOTIFICATIONS = 1 << 0  # Suppress member join notifications
     SUPPRESS_PREMIUM_SUBSCRIPTIONS = 1 << 1  # Suppress server boost notifications
     SUPPRESS_GUILD_REMINDER_NOTIFICATIONS = 1 << 2  # Suppress server setup tips
+
+
+class PremiumTier(IntEnum):
+    NONE = 0  # Guild has not unlocked any Server Boost perks
+    TIER_1 = 1  # Guild has unlocked Server Boost level 1 perks
+    TIER_2 = 2  # Guild has unlocked Server Boost level 2 perks
+    TIER_3 = 3  # Guild has unlocked Server Boost level 3 perks
