@@ -13,6 +13,7 @@ from dippy.core.models.presence import PresenceModel
 from dippy.core.models.role import RoleModel
 from dippy.core.models.user import UserModel
 from dippy.core.models.voice_state import VoiceStateModel
+from dippy.core.timestamp import Timestamp
 from pydantic import BaseModel, Field, validator
 from dippy.core.snowflake import Snowflake
 from typing import Optional
@@ -20,6 +21,14 @@ from typing import Optional
 
 class EventModel(BaseModel):
     pass
+
+
+class CacheableUser(BaseModel, Cacheable):
+    created: Timestamp = Field(default_factory=Timestamp)
+
+    @property
+    def id(self) -> Snowflake:
+        return self.user.id
 
 
 def make_event_object(event, base):
@@ -100,12 +109,12 @@ class EventGuildIntegrationsUpdate(EventModel):
     guild_id: Snowflake
 
 
-class EventGuildMemberRemove(EventModel, Cacheable):
+class EventGuildMemberRemove(CacheableUser):
     guild_id: Snowflake
     user: UserModel
 
 
-class EventGuildMemberUpdate(EventModel, Cacheable):
+class EventGuildMemberUpdate(CacheableUser):
     guild_id: Snowflake
     roles: list[Snowflake]
     user: UserModel
