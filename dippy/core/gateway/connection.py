@@ -199,7 +199,12 @@ class GatewayConnection:
                 self._log.error(f"Gateway connection closed - {message}")
                 if self._connected.is_set():
                     self._connected.clear()
-                    await self.resume()
+                    delay = random.uniform(2, 5)
+                    self._log.info(
+                        f"Attempting to resume after a {delay:.2f}s standoff"
+                    )
+                    await asyncio.sleep(delay)
+                    self._loop.create_task(self.resume())
                     return
             elif message.type == WSMsgType.ERROR:
                 self._log.error(f"The connection returned an error: {message.data}")
