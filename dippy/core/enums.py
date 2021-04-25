@@ -225,3 +225,9 @@ class GuildFeature(StrEnum):
 class MFALevel(IntEnum):
     NONE = 0  # Guild has no MFA/2FA requirement for moderation actions
     ELEVATED = 1  # Guild has a 2FA requirement for moderation actions
+
+
+class ChannelFlag(IntEnum):
+    SUPPRESS_JOIN_NOTIFICATIONS = 1 << 0  # Suppress member join notifications
+    SUPPRESS_PREMIUM_SUBSCRIPTIONS = 1 << 1  # Suppress server boost notifications
+    SUPPRESS_GUILD_REMINDER_NOTIFICATIONS = 1 << 2  # Suppress server setup tips
