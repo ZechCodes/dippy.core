@@ -1,11 +1,13 @@
+from bevy import Context, Injectable
 from aiohttp import client_exceptions, ClientSession, ClientWebSocketResponse, WSMsgType
-from dippy.core.enums import GatewayCode
+from dippy.core.enums import GatewayCode, Event
+from dippy.core.events import BaseEventStream
+from dippy.core.gateway.bases import BaseGatewayConnection, BaseHeartbeat
 from dippy.core.gateway.heartbeat import Heartbeat
-from dippy.core.gateway.event_mapper import event_mapper
 from dippy.core.gateway.payload import Payload
 from dippy.core.intents import Intents
-from gully import Gully, Observer
-from typing import Any, Callable, Coroutine, Optional, Union
+from dippy.core.models.events import EventReady
+from typing import Optional
 import asyncio
 import json
 import logging
@@ -14,26 +16,19 @@ import sys
 import zlib
 
 
-class GatewayConnection:
+class GatewayConnection(BaseGatewayConnection, Injectable):
     __gateway_version__ = 8
 
-    def __init__(
-        self,
-        token: str,
-        *,
-        event_map: Callable[[Payload], Any] = event_mapper,
-        loop: asyncio.AbstractEventLoop = None,
-        **kwargs,
-    ):
-        self._client_events = Gully()
-        self._event_dispatch = self._client_events.map(event_map)
+    context: Context
+    events: BaseEventStream
+    loop: asyncio.AbstractEventLoop
+
+    def __init__(self, token: str, **kwargs):
         self._connected = asyncio.Event()
         self._filters = {}
         self._dispatch_filters = {}
         self._gateway_url = ""
-        self._heartbeat = Heartbeat(self, loop=loop)
         self._log = logging.getLogger().getChild(type(self).__name__)
-        self._loop = loop if loop else asyncio.get_event_loop()
         self._sequence_index = None
         self._session_id = None
         self._settings = kwargs
@@ -41,8 +36,8 @@ class GatewayConnection:
         self._observer: Optional[asyncio.Future] = None
         self._websocket = asyncio.Future()
 
-        self.on_raw(self._ready, event="READY")
-        self.on_raw(self._reconnect, op_code=GatewayCode.RECONNECT)
+        self.events.on(Event.READY, self._ready)
+        self.events.raw.on(self._reconnect, op_code=GatewayCode.RECONNECT)
 
     @property
     def connected(self) -> bool:
@@ -57,8 +52,11 @@ class GatewayConnection:
         return self._sequence_index
 
     async def connect(self):
+        if not self.context.has(BaseHeartbeat):
+            self.context.create(Heartbeat)
+
         self._log.info("Connecting to the Discord gateway")
-        self._loop.create_task(self._connect())
+        self.loop.create_task(self._connect())
         await self._connected.wait()
         self._log.info("Authenticating with gateway")
         await self._identify()
@@ -71,45 +69,14 @@ class GatewayConnection:
             await ws.close(code=code)
             self._observer.cancel()
 
-    def on(
-        self,
-        event: Optional[str],
-        callback: Union[Callable, Coroutine],
-    ) -> Observer:
-        event = event.casefold()
-        event = "*" if event in {"all", "*", "any"} else event
-        if event not in self._dispatch_filters:
-            self._dispatch_filters[event] = self._event_dispatch.filter(
-                lambda payload: (
-                    payload.event
-                    and (event == "*" or event == payload.event.casefold())
-                )
-            )
-
-        return self._dispatch_filters[event].watch(callback)
-
-    def on_raw(
-        self,
-        callback: Union[Callable, Coroutine],
-        op_code: Optional[GatewayCode] = None,
-        event: Optional[str] = None,
-    ) -> Observer:
-        if (op_code, event) not in self._filters:
-            self._filters[(op_code, event)] = self._client_events.filter(
-                lambda payload: (op_code is None or op_code == payload.op_code)
-                and (event is None or event == payload.event)
-            )
-
-        return self._filters[(op_code, event)].watch(callback)
-
     async def resume(self):
         await self.disconnect(0)  # Close with a non-1000 code
         self._log.info("Reconnecting to gateway")
-        self._loop.create_task(self._connect())
+        self.loop.create_task(self._connect())
         await self._connected.wait()
         self._log.info("Attempting to resume session")
-        self._loop.create_task(self._resume())
-        event: Payload = await self._client_events.next
+        self.loop.create_task(self._resume())
+        event: Payload = await self.events.raw.next
         if event.op_code == GatewayCode.INVALID_SESSION:
             delay = random.uniform(1, 5)
             self._log.info(
@@ -144,7 +111,7 @@ class GatewayConnection:
                 ws = await self._create_websocket(session)
                 self._websocket.set_result(ws)
                 self._connected.set()
-                self._observer = self._loop.create_task(self._observe(ws))
+                self._observer = self.loop.create_task(self._observe(ws))
                 await self._observer
             except client_exceptions.ClientConnectorError:
                 raise ConnectionError(
@@ -172,7 +139,7 @@ class GatewayConnection:
             not self.sequence_index or payload.sequence_num > self.sequence_index
         ):
             self._sequence_index = payload.sequence_num
-        self._client_events.push(payload)
+        self.events.push(payload)
 
     def _identify(self):
         settings = self._settings.copy()
@@ -205,19 +172,19 @@ class GatewayConnection:
                         f"Attempting to resume after a {delay:.2f}s standoff"
                     )
                     await asyncio.sleep(delay)
-                    self._loop.create_task(self.resume())
+                    self.loop.create_task(self.resume())
                     return
             elif message.type == WSMsgType.ERROR:
                 self._log.error(f"The connection returned an error: {message.data}")
                 raise message.data
             # Handle TEXT and BINARY messages. Kick them out to a task so that the observer loop can continue.
             elif message.type == WSMsgType.TEXT:
-                self._loop.create_task(self._emit_text(message.data))
+                self.loop.create_task(self._emit_text(message.data))
             elif message.type == WSMsgType.BINARY:
-                self._loop.create_task(self._emit_binary(message.data))
+                self.loop.create_task(self._emit_binary(message.data))
 
-    async def _ready(self, payload: Payload):
-        self._session_id = payload.data["session_id"]
+    async def _ready(self, event: EventReady):
+        self._session_id = event.session_id
 
     async def _reconnect(self, _):
         await self.resume()
