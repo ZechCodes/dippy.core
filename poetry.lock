@@ -40,6 +40,14 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
 
 [[package]]
+name = "bevy"
+version = "0.4.5"
+description = "Python Dependency Inversion made simple so you can focus on creating amazing code."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[[package]]
 name = "chardet"
 version = "4.0.0"
 description = "Universal encoding detector for Python 2 and 3"
@@ -109,7 +117,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "73dcaacc12407ded961a70a7d105fd96810fd0753829267ee52c6c74308765f0"
+content-hash = "dbe59f25e36305bdd5630fc9054ba72e3ef8b84ce979974f795949a9e9309a16"
 
 [metadata.files]
 aiohttp = [
@@ -158,6 +166,10 @@ async-timeout = [
 attrs = [
     {file = "attrs-20.3.0-py2.py3-none-any.whl", hash = "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6"},
     {file = "attrs-20.3.0.tar.gz", hash = "sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700"},
+]
+bevy = [
+    {file = "Bevy-0.4.5-py3-none-any.whl", hash = "sha256:2b263d42e3e5cdc6c6435e3c3baadf34d9f429ed8bd919394dc70ca04a941f1e"},
+    {file = "Bevy-0.4.5.tar.gz", hash = "sha256:40590ce5e2c3847e5d9ba18e6d7b5519930b2e52bdba41ace856f3e66a525d63"},
 ]
 chardet = [
     {file = "chardet-4.0.0-py2.py3-none-any.whl", hash = "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"},
