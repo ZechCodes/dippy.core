@@ -1,12 +1,29 @@
 from dippy.core.caching.cache import Cache
 from dippy.core.enums import Event as E
-from dippy.core.gateway.connection import GatewayConnection
-from dippy.core.gateway.event_mapper import Event
+from dippy.core.events import BaseEventStream
+from dippy.core.models.events import (
+    EventChannelCreate,
+    EventChannelDelete,
+    EventChannelUpdate,
+    EventGuildCreate,
+    EventGuildDelete,
+    EventGuildMemberAdd,
+    EventGuildMemberRemove,
+    EventGuildMemberUpdate,
+    EventGuildMembersChunk,
+    EventGuildUpdate,
+    EventMessageCreate,
+    EventMessageDelete,
+    EventMessageDeleteBulk,
+    EventMessageUpdate,
+    GuildModel,
+)
 from dippy.core.interfaces.channel import Channel
 from dippy.core.interfaces.guild import Guild
 from dippy.core.interfaces.member import Member
 from dippy.core.interfaces.message import Message
 from dippy.core.interfaces.user import User
+from typing import Union
 
 
 class CacheManager:
@@ -43,45 +60,55 @@ class CacheManager:
         gateway.on(E.MESSAGE_DELETE, self.message_delete)
         gateway.on(E.MESSAGE_DELETE_BULK, self.message_delete_bulk)
 
-    async def channel_update(self, event: Event):
-        self.channels.add(event.payload)
+    async def channel_update(
+        self, event: Union[EventChannelCreate, EventChannelUpdate]
+    ):
+        self.channels.add(event)
 
-    async def channel_remove(self, event: Event):
-        self.channels.remove(event.payload.id)
+    async def channel_remove(self, event: EventChannelDelete):
+        self.channels.remove(event.id)
 
-    async def channel_update_bulk(self, event: Event):
-        for channel in event.payload.channels:
+    async def channel_update_bulk(
+        self, event: Union[EventGuildCreate, EventGuildUpdate, GuildModel]
+    ):
+        for channel in event.channels:
             self.channels.add(channel)
 
-    async def guild_update(self, event: Event):
-        self.guilds.add(event.payload)
+    async def guild_update(self, event: Union[EventGuildCreate, EventGuildUpdate]):
+        self.guilds.add(event)
         await self.channel_update_bulk(event)
         await self.member_update_chunk(event)
 
-    async def guild_remove(self, event: Event):
-        self.guilds.remove(event.payload.id)
+    async def guild_remove(self, event: EventGuildDelete):
+        self.guilds.remove(event.id)
 
-    async def message_update(self, event: Event):
-        self.messages.add(event.payload)
+    async def message_update(
+        self, event: Union[EventMessageCreate, EventMessageUpdate]
+    ):
+        self.messages.add(event)
 
-    async def message_delete(self, event: Event):
-        self.messages.remove(event.payload.id)
+    async def message_delete(self, event: EventMessageDelete):
+        self.messages.remove(event.id)
 
-    async def message_delete_bulk(self, event: Event):
-        for message_id in event.payload.ids:
+    async def message_delete_bulk(self, event: EventMessageDeleteBulk):
+        for message_id in event.ids:
             self.messages.remove(message_id)
 
-    async def member_update(self, event: Event):
-        if event.payload.user:
-            self.users.add(event.payload.user)
-        user = self.users.get(event.payload.user.id)
-        self.members.add(event.payload, user)
+    async def member_update(
+        self, event: Union[EventGuildMemberAdd, EventGuildMemberUpdate]
+    ):
+        if event.user:
+            self.users.add(event.user)
+        user = self.users.get(event.user.id)
+        self.members.add(event, user)
 
-    async def member_remove(self, event: Event):
-        self.members.remove(event.payload.id)
+    async def member_remove(self, event: EventGuildMemberRemove):
+        self.members.remove(event.user.id)
 
-    async def member_update_chunk(self, event: Event):
-        for member in event.payload.members:
+    async def member_update_chunk(
+        self, event: Union[EventGuildMembersChunk, EventGuildCreate, EventGuildUpdate]
+    ):
+        for member in event.members:
             if member.user:
                 self.users.add(member.user)
             user = self.users.get(member.user.id)
