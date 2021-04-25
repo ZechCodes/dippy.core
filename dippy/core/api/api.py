@@ -9,8 +9,9 @@ from typing import Optional
 class DiscordAPI(BaseDiscordAPI, Injectable):
     context: Context
 
-    def __init__(self):
-        self._session: ClientSession = ClientSession()
+    def __init__(self, token: str, **kwargs):
+        self._token = token
+        self._settings = kwargs
 
     async def __aenter__(self):
         return self
@@ -32,8 +33,10 @@ class DiscordAPI(BaseDiscordAPI, Injectable):
 
         await self._session.close()
 
-    def connect(self, token: Optional[str] = None, **kwargs):
+    def connect(self):
         if not self.gateway:
-            gateway = self.context.create(GatewayConnection, token, **kwargs)
+            gateway = self.context.create(
+                GatewayConnection, self._token, **self._settings
+            )
             self.context.add(gateway)
         return self.gateway.connect()

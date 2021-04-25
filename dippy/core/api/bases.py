@@ -21,5 +21,5 @@ class BaseDiscordAPI(ABC, Injectable):
         ...
 
     @abstractmethod
-    async def connect(self, token: Optional[str] = None, **k):
+    async def connect(self):
         ...
