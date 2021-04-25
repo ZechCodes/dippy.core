@@ -1,4 +1,4 @@
-from bevy import Injectable
+from bevy import Context, Factory, Injectable
 from dippy.core.caching.cache import Cache
 from dippy.core.enums import Event
 from dippy.core.events import BaseEventStream
@@ -28,6 +28,7 @@ from typing import Union
 
 
 class CacheManager(Injectable):
+    context: Context
     events: BaseEventStream
 
     def __init__(
@@ -38,11 +39,11 @@ class CacheManager(Injectable):
         max_messages: int = 1_000,
         max_users: int = 10_000,
     ):
-        self.channels = Cache(max_channels, Channel)
-        self.guilds = Cache(max_guilds, Guild)
-        self.messages = Cache(max_messages, Message)
-        self.members = Cache(max_members, Member)
-        self.users = Cache(max_users, User)
+        self.channels = Cache(max_channels, Factory(Channel, self.context))
+        self.guilds = Cache(max_guilds, Factory(Guild, self.context))
+        self.messages = Cache(max_messages, Factory(Message, self.context))
+        self.members = Cache(max_members, Factory(Member, self.context))
+        self.users = Cache(max_users, Factory(User, self.context))
 
         self.events.on(Event.CHANNEL_UPDATE, self.channel_update)
         self.events.on(Event.CHANNEL_CREATE, self.channel_update)
