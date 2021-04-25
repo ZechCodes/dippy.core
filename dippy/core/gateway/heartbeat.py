@@ -1,5 +1,8 @@
+from bevy import Injectable
 from datetime import datetime, timedelta
 from dippy.core.enums import GatewayCode
+from dippy.core.events import BaseEventStream
+from dippy.core.gateway.bases import BaseGatewayConnection, BaseHeartbeat
 from dippy.core.gateway.payload import Payload
 from typing import Awaitable, Optional
 import asyncio
@@ -8,32 +11,29 @@ import random
 import time
 
 
-class Heartbeat:
-    def __init__(
-        self,
-        gateway,
-        *,
-        loop: asyncio.AbstractEventLoop = None,
-    ):
-        self._gateway = gateway
+class Heartbeat(BaseHeartbeat, Injectable):
+    events: BaseEventStream
+    gateway: BaseGatewayConnection
+    loop: asyncio.AbstractEventLoop
+
+    def __init__(self):
         self._interval = -1
         self._log = logging.getLogger().getChild(type(self).__name__)
-        self._loop = loop if loop else asyncio.get_event_loop()
         self._next_beat: Optional[asyncio.Future] = None
         self._last_acknowledgement = time.time()
 
         # Immediate heartbeat requested
-        self._gateway.on_raw(self._send_immediately, op_code=GatewayCode.HEARTBEAT)
+        self.events.raw.on(self._send_immediately, op_code=GatewayCode.HEARTBEAT)
         # Heartbeat interval settings
-        self._gateway.on_raw(self._start, op_code=GatewayCode.HELLO)
+        self.events.raw.on(self._start, op_code=GatewayCode.HELLO)
         # Heartbeat acknowledgement
-        self._gateway.on_raw(
+        self.events.raw.on(
             self._note_acknowledgement, op_code=GatewayCode.HEARTBEAT_ACK
         )
 
     @property
     def running(self) -> bool:
-        return self._next_beat is not None
+        return self._next_beat is not None and not self._next_beat.done()
 
     def stop(self):
         self._next_beat.cancel()
@@ -51,19 +51,19 @@ class Heartbeat:
         self._schedule_next_heartbeat(delay_ms)
 
     def _schedule_next_heartbeat(self, delay_ms: float):
-        self._next_beat = self._loop.create_task(self._send_heartbeat(delay_ms))
+        self._next_beat = self.loop.create_task(self._send_heartbeat(delay_ms))
 
     async def _send_heartbeat(self, delay_ms: float):
         if delay_ms:
             await self._sleep(delay_ms)
             if time.time() - self._last_acknowledgement > self._interval:
                 self._log.info("No heartbeat acknowledgement has been received")
-                await self._gateway.resume()
+                await self.gateway.resume()
                 return
 
-        if self._gateway.connected:
-            await self._gateway.send(
-                Payload(op=GatewayCode.HEARTBEAT, d=self._gateway.sequence_index)
+        if self.gateway.connected:
+            await self.gateway.send(
+                Payload(op=GatewayCode.HEARTBEAT, d=self.gateway.sequence_index)
             )
             next_beat = datetime.utcnow() + timedelta(milliseconds=self._interval)
             self._log.debug(
@@ -71,7 +71,7 @@ class Heartbeat:
             )
             self._schedule_next_heartbeat(self._interval)
 
-    async def _send_immediately(self, payload: Payload):
+    def _send_immediately(self, payload: Payload):
         self.stop()
         self._schedule_next_heartbeat(0)
 
