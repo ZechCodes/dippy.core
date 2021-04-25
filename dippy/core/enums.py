@@ -173,3 +173,8 @@ class VerificationLevel(IntEnum):
     MEDIUM = 2  # Must be registered on Discord for longer than 5 minutes
     HIGH = 3  # Must be a member of the server for longer than 10 minutes
     VERY_HIGH = 4  # Must have a verified phone number
+
+
+class DefaultMessageNotificationLevel(IntEnum):
+    ALL_MESSAGES = 0  # Members will receive notifications for all messages by default
+    ONLY_MENTIONS = 1  # Members will receive notifications only for messages that @mention them by default
