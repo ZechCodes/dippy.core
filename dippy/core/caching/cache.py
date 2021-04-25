@@ -16,7 +16,7 @@ class Cache(Generic[T]):
         self._factory = factory
         self._max_size = max_size
 
-    def add(self, payload: Cacheable, *args, **kwargs) -> bool:
+    def add(self, payload: Cacheable, *args, **kwargs) -> Optional[T]:
         if not isinstance(payload, Cacheable):
             raise ValueError(
                 f"The cache can only add items that derive from {Cacheable}, got {type(payload)}"
@@ -37,9 +37,9 @@ class Cache(Generic[T]):
         else:
             # Not new and not newer
             log.debug(f"Ignored {self._cache[payload.id]}, newer in the cache")
-            return False
+            return
 
-        return True
+        return self._cache[payload.id]
 
     def remove(self, cache_id: int):
         item = self._cache.pop(cache_id, None)
