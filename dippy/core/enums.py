@@ -303,3 +303,9 @@ class Event(StrEnum):
     VOICE_STATE_UPDATE = "VOICE_STATE_UPDATE"
     VOICE_SERVER_UPDATE = "VOICE_SERVER_UPDATE"
     WEBHOOKS_UPDATE = "WEBHOOKS_UPDATE"
+
+
+class AllowedMention(StrEnum):
+    ROLES = "role"
+    USERS = "users"
+    EVERYONE = "everyone"
