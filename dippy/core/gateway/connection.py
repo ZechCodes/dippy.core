@@ -61,6 +61,9 @@ class GatewayConnection(BaseGatewayConnection, Injectable):
         self._log.info("Authenticating with gateway")
         await self._identify()
 
+        while self._observer and not self._observer.done():
+            await self._observer
+
     async def disconnect(self, code=1000):
         if self._connected:
             self._log.info(f"Disconnecting from the gateway with code {code}")
