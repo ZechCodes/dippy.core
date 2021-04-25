@@ -1,6 +1,6 @@
 from datetime import datetime
 from dippy.core.enums import ChannelType
-from dippy.core.models.model import DippyCoreModel
+from dippy.core.models.model import DippyCoreModel, DippyCoreCacheableModel
 from dippy.core.models.overwrite import OverwriteModel
 from dippy.core.models.user import UserModel
 from dippy.core.snowflake import Snowflake
@@ -14,11 +14,10 @@ class ChannelMentionModel(DippyCoreModel):
     name: str
 
 
-class ChannelModel(DippyCoreModel):
+class ChannelModel(DippyCoreCacheableModel):
     id: Snowflake
-    name: str
-    position: int
     type: ChannelType
+
     application_id: Optional[Snowflake]
     bitrate: Optional[int]
     created_at: Optional[datetime]
@@ -26,10 +25,12 @@ class ChannelModel(DippyCoreModel):
     icon: Optional[str]
     last_message_id: Optional[Snowflake]
     last_pin_timestamp: Optional[datetime]
+    name: Optional[str]
     nsfw: Optional[bool]
     owner_id: Optional[Snowflake]
     parent_id: Optional[Snowflake]
     permission_overwrites: list[OverwriteModel]
+    position: Optional[int]
     rate_limit_per_user: Optional[int]
     recipients: Optional[list[UserModel]]
     rtc_region: Optional[str]
