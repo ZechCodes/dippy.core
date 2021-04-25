@@ -1,6 +1,6 @@
 from bevy import Injectable
 from dippy.core.caching.cache import Cache
-from dippy.core.enums import Event as E
+from dippy.core.enums import Event
 from dippy.core.events import BaseEventStream
 from dippy.core.models.events import (
     EventChannelCreate,
@@ -44,23 +44,23 @@ class CacheManager(Injectable):
         self.members = Cache(max_members, Member)
         self.users = Cache(max_users, User)
 
-        self.events.on(E.CHANNEL_UPDATE, self.channel_update)
-        self.events.on(E.CHANNEL_CREATE, self.channel_update)
-        self.events.on(E.CHANNEL_DELETE, self.channel_remove)
+        self.events.on(Event.CHANNEL_UPDATE, self.channel_update)
+        self.events.on(Event.CHANNEL_CREATE, self.channel_update)
+        self.events.on(Event.CHANNEL_DELETE, self.channel_remove)
 
-        self.events.on(E.GUILD_CREATE, self.guild_update)
-        self.events.on(E.GUILD_DELETE, self.guild_remove)
-        self.events.on(E.GUILD_UPDATE, self.guild_update)
+        self.events.on(Event.GUILD_CREATE, self.guild_update)
+        self.events.on(Event.GUILD_DELETE, self.guild_remove)
+        self.events.on(Event.GUILD_UPDATE, self.guild_update)
 
-        self.events.on(E.GUILD_MEMBER_ADD, self.member_update)
-        self.events.on(E.GUILD_MEMBER_UPDATE, self.member_update)
-        self.events.on(E.GUILD_MEMBER_REMOVE, self.member_remove)
-        self.events.on(E.GUILD_MEMBERS_CHUNK, self.member_update_chunk)
+        self.events.on(Event.GUILD_MEMBER_ADD, self.member_update)
+        self.events.on(Event.GUILD_MEMBER_UPDATE, self.member_update)
+        self.events.on(Event.GUILD_MEMBER_REMOVE, self.member_remove)
+        self.events.on(Event.GUILD_MEMBERS_CHUNK, self.member_update_chunk)
 
-        self.events.on(E.MESSAGE_CREATE, self.message_update)
-        self.events.on(E.MESSAGE_UPDATE, self.message_update)
-        self.events.on(E.MESSAGE_DELETE, self.message_delete)
-        self.events.on(E.MESSAGE_DELETE_BULK, self.message_delete_bulk)
+        self.events.on(Event.MESSAGE_CREATE, self.message_update)
+        self.events.on(Event.MESSAGE_UPDATE, self.message_update)
+        self.events.on(Event.MESSAGE_DELETE, self.message_delete)
+        self.events.on(Event.MESSAGE_DELETE_BULK, self.message_delete_bulk)
 
     async def channel_update(
         self, event: Union[EventChannelCreate, EventChannelUpdate]
