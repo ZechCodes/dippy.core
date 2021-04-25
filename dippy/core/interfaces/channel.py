@@ -5,10 +5,15 @@ from dippy.core.caching.cacheable import Cacheable
 from dippy.core.interfaces.message import Message
 from dippy.core.models.channel import *
 from dippy.core.models.embed import EmbedModel
-from dippy.core.models.message import AllowedMentions, MessageReferenceModel
+from dippy.core.models.message import (
+    AllowedMentions,
+    MessageModel,
+    MessageReferenceModel,
+)
 from dippy.core.timestamp import Timestamp
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from gully import Gully
+import dippy.core.caching.bases
 
 
 class SendMessageModel(BaseModel):
@@ -20,6 +25,7 @@ class SendMessageModel(BaseModel):
 
 
 class Channel(Cacheable, Injectable):
+    cache: dippy.core.caching.bases.BaseCacheManager
     request: Factory[Request]
 
     def __init__(self, model: ChannelModel):
@@ -72,7 +78,8 @@ class Channel(Cacheable, Injectable):
             message_reference=message_reference,
         )
         endpoint = self.request(f"/channels/{self.id}/messages")
-        return await endpoint.post(**message.dict(exclude_none=True))
+        response = await endpoint.post(**message.dict(exclude_none=True))
+        return self.cache.messages.add(MessageModel(**(await response.json())))
 
     def update(self, model: ChannelModel):
         self._model = self._model.copy(update=model.dict(exclude_unset=True))
