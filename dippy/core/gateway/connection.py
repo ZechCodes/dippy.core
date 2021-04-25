@@ -150,10 +150,11 @@ class GatewayConnection:
                 raise ConnectionError(
                     f"Gateway connection failed, attempted to connect to {self.gateway!r}, it may be out of date"
                 )
-            finally:
-                self._connected.clear()
+            else:
                 if ws and not ws.closed:
                     await ws.close()
+            finally:
+                self._connected.clear()
                 self._websocket = asyncio.Future()
 
     async def _create_websocket(
