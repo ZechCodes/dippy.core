@@ -26,7 +26,7 @@ class BaseGatewayConnection(ABC, Injectable):
         ...
 
     @abstractmethod
-    async def disconnect(self, code: int):
+    async def disconnect(self, code: int = 1000):
         ...
 
     @abstractmethod
