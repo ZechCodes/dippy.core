@@ -39,4 +39,4 @@ class Request(Injectable):
         return url.geturl()
 
     def _to_json(self, content: dict[str, Any]) -> str:
-        return dumps(content)
+        return dumps(content, separators=(",", ":"), ensure_ascii=True)
