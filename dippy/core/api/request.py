@@ -26,6 +26,9 @@ class Request(Injectable):
             self._create_url(),
             data=self._to_json(kwargs),
             headers={"Content-Type": content_type},
+        if reason:
+            headers["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
+
         response = await self.api.session.post(
             self._create_url(), data=data, headers=headers
         )
