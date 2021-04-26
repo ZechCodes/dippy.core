@@ -1,11 +1,18 @@
 from __future__ import annotations
+from bevy import Factory, Injectable
+from dippy.core.api.request import Request
+from dippy.core.api.endpoint import Endpoint
 from dippy.core.caching.cacheable import Cacheable
+from dippy.core.enums import StatusCode
 from dippy.core.models.message import *
+from dippy.core.models.emoji import EmojiModel
 from dippy.core.timestamp import Timestamp
 from gully import Gully
 
 
-class Message(Cacheable):
+class Message(Cacheable, Injectable):
+    request: Factory[Request]
+
     def __init__(self, model: MessageModel):
         self._model = model
         self._change_event_stream = Gully()
@@ -15,6 +22,31 @@ class Message(Cacheable):
 
     def freeze(self) -> Message:
         return Message(self._model)
+
+    # ENDPOINT METHODS
+
+    @Endpoint.put("/channels/{channel}/messages/{message}/reactions/{emoji}/@me")
+    async def add_reaction(self, emoji: Union[str, EmojiModel]):
+        return EmojiModel.parse(emoji)
+
+    @add_reaction.setup_path
+    async def add_reaction(self, path: str, emoji: EmojiModel) -> str:
+        encoded_emoji = emoji.name
+        if emoji.id:
+            encoded_emoji = f"{encoded_emoji}:{emoji.id}"
+
+        return path.format(
+            channel=self.channel_id, message=self.id, emoji=encoded_emoji
+        )
+
+    @add_reaction.on_result
+    async def add_reaction(self, response, status: int) -> bool:
+        if status == 204:
+            return True
+        elif response["code"] == StatusCode.UNKNOWN_EMOJI:
+            raise ValueError("Unknown emoji")
+
+        raise Exception(f"Unknown API Exception: {status} {response['message']}")
 
     @property
     def created(self) -> Timestamp:
