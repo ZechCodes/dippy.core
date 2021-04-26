@@ -26,7 +26,10 @@ class Request(Injectable):
             self._create_url(),
             data=self._to_json(kwargs),
             headers={"Content-Type": content_type},
+        response = await self.api.session.post(
+            self._create_url(), data=data, headers=headers
         )
+        return await response.json()
 
     def _create_url(self, query_args: Optional[dict[str, Any]] = None) -> str:
         url = SplitResult(
