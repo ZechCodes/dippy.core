@@ -62,5 +62,6 @@ class DiscordAPI(BaseDiscordAPI, Injectable):
             headers={
                 "Authorization": f"Bot {self._token}",
                 "User-Agent": user_agent,
+                "X-Ratelimit-Precision": "millisecond",
             }
         )
