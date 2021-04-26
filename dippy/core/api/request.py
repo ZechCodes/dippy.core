@@ -55,6 +55,10 @@ class Request(Injectable):
         )
         return await self._get_response(response), response.status
 
+    async def put(self, **kwargs):
+        resp = await self.api.session.put(self._create_url(kwargs))
+        return await self._get_response(resp), resp.status
+
     def _create_url(self, query_args: Optional[dict[str, Any]] = None) -> str:
         url = SplitResult(
             scheme="https",
