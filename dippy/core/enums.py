@@ -309,3 +309,7 @@ class AllowedMention(StrEnum):
     ROLES = "role"
     USERS = "users"
     EVERYONE = "everyone"
+
+
+class StatusCode(IntEnum):
+    UNKNOWN_EMOJI = 10014
