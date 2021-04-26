@@ -13,7 +13,15 @@ from dippy.core.models.message import (
 from dippy.core.timestamp import Timestamp
 from pydantic import BaseModel, Field
 from gully import Gully
+from pathlib import Path
+from io import IOBase
+from typing import Union
 import dippy.core.caching.bases
+
+
+FileName = FilePath = str
+File = IOBase
+FileUpload = Union[File, FilePath, Path]
 
 
 class SendMessageModel(BaseModel):
@@ -66,6 +74,7 @@ class Channel(Cacheable, Injectable):
         tts: bool = False,
         allowed_mentions: Optional[AllowedMentions] = None,
         message_reference: Optional[MessageReferenceModel] = None,
+        files: Optional[dict[FileName, FileUpload]] = None,
     ):
         if not content and not embed:
             raise ValueError("You must provide either message content or an embed")
@@ -78,11 +87,29 @@ class Channel(Cacheable, Injectable):
             message_reference=message_reference,
         )
         endpoint = self.request(f"/channels/{self.id}/messages")
-        response = await endpoint.post(**message.dict(exclude_none=True))
-        return self.cache.messages.add(MessageModel(**(await response.json())))
+        response = await endpoint.post(
+            **message.dict(exclude_none=True), files=self._construct_files(files)
+        )
+        return self.cache.messages.add(MessageModel(**response))
 
     def update(self, model: ChannelModel):
         self._model = self._model.copy(update=model.dict(exclude_unset=True))
+
+    def _construct_files(
+        self, files: Optional[dict[FileName, FileUpload]]
+    ) -> Optional[dict[FileName, File]]:
+        if not files:
+            return
+
+        uploads = {}
+        for filename, file in files.items():
+            fp = file
+            if isinstance(file, FilePath):
+                fp = Path(file).resolve().open("rb")
+            elif isinstance(file, Path):
+                fp = file.resolve().open("rb")
+            uploads[filename] = fp
+        return uploads
 
     @property
     def created(self) -> Timestamp:
