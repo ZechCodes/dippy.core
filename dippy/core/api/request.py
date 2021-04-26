@@ -17,17 +17,19 @@ class Request(Injectable):
         self._endpoint = endpoint.strip("/")
 
     async def delete(self, **kwargs):
-        return await self.api.session.delete(self._create_url(kwargs))
+        resp = await self.api.session.delete(self._create_url(kwargs))
+        return await self._get_response(resp), resp.status
 
     async def get(self, **kwargs):
-        return await self.api.session.get(self._create_url(kwargs))
+        resp = await self.api.session.get(self._create_url(kwargs))
+        return await self._get_response(resp), resp.status
 
     async def post(
         self,
         files: Optional[dict[str, IOBase]] = None,
         reason: Optional[str] = None,
         **kwargs,
-    ) -> dict[str, Any]:
+    ):
         data = self._to_json(kwargs)
         headers = {}
         if files:
@@ -51,7 +53,7 @@ class Request(Injectable):
         response = await self.api.session.post(
             self._create_url(), data=data, headers=headers
         )
-        return await response.json()
+        return await self._get_response(response), response.status
 
     def _create_url(self, query_args: Optional[dict[str, Any]] = None) -> str:
         url = SplitResult(
@@ -62,6 +64,11 @@ class Request(Injectable):
             fragment="",
         )
         return url.geturl()
+
+    def _get_response(self, resp):
+        if resp.content_type == "application/json":
+            return resp.json()
+        return resp.read()
 
     def _to_json(self, content: dict[str, Any]) -> str:
         return dumps(content, separators=(",", ":"), ensure_ascii=True)
