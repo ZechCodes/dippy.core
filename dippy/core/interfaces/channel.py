@@ -46,8 +46,11 @@ class Channel(Cacheable, Injectable):
     def freeze(self) -> Channel:
         return Channel(self._model)
 
-    async def retrieve_message(self, message_id: Snowflake) -> list[Message]:
-        return await self.request(f"/channels/{self.id}/messages/{message_id}").get()
+    async def retrieve_message(self, message_id: Snowflake) -> Message:
+        response, _ = await self.request(
+            f"/channels/{self.id}/messages/{message_id}"
+        ).get()
+        return self.cache.messages.add(MessageModel(**response))
 
     async def retrieve_messages(
         self,
