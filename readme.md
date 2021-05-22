@@ -2,6 +2,12 @@
 
 This is a bare-bones Discord gateway client that can be used to build Python bot frameworks for Discord. 
 
+# ☢️ THIS IS ALPHA SOFTWARE ☢️
+
+There will be bugs and not all features are implemented. It should be fine to use it but if it goes crazy and gets your bot token reset, well, you've been warned. (Fwiw I've not had issues during development so far)
+
+**PLEASE** report any bugs or issues here. __If you would like to contribute feel free!__
+
 ## Installation
 ```shell
 pip install dippy.core
