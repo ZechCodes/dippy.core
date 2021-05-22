@@ -70,9 +70,9 @@ async def start(loop):
         cache = context.create(CacheManager)
         context.add(cache)
 
-        async def ready(*args):
+        async def ready(event):
             await asyncio.sleep(2)
-            logging.info("Everything should be ready now!")
+            logging.info(f"Everything should be ready now {event.user.username}!")
 
         events.on("READY", ready)
 
