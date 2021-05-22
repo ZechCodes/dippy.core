@@ -1,6 +1,6 @@
 from bevy import Context, Factory, Injectable
 from dippy.core.caching.bases import BaseCacheManager
-from dippy.core.caching.cache import Cache
+from dippy.core.caching.cache import Cache, MemberCache
 from dippy.core.enums import Event
 from dippy.core.events import BaseEventStream
 from dippy.core.models.events import (
@@ -43,7 +43,7 @@ class CacheManager(BaseCacheManager, Injectable):
         self._channels = Cache(max_channels, Factory(Channel, self.context))
         self._guilds = Cache(max_guilds, Factory(Guild, self.context))
         self._messages = Cache(max_messages, Factory(Message, self.context))
-        self._members = Cache(max_members, Factory(Member, self.context))
+        self._members = MemberCache(max_members, Factory(Member, self.context))
         self._users = Cache(max_users, Factory(User, self.context))
 
         self.events.on(Event.CHANNEL_UPDATE, self.channel_update)
@@ -77,7 +77,7 @@ class CacheManager(BaseCacheManager, Injectable):
         return self._messages
 
     @property
-    def members(self) -> Cache[Member]:
+    def members(self) -> MemberCache[tuple[Guild, Member]]:
         return self._members
 
     @property
@@ -127,7 +127,7 @@ class CacheManager(BaseCacheManager, Injectable):
         self.members.add(event, user)
 
     async def member_remove(self, event: EventGuildMemberRemove):
-        self.members.remove(event.user.id)
+        self.members.remove(event.guild_id, event.user.id)
 
     async def member_update_chunk(
         self, event: Union[EventGuildMembersChunk, EventGuildCreate, EventGuildUpdate]
@@ -135,5 +135,7 @@ class CacheManager(BaseCacheManager, Injectable):
         for member in event.members:
             if member.user:
                 self.users.add(member.user)
+
+            member.guild_id = event.id or event.guild_id
             user = self.users.get(member.user.id)
             self.members.add(member, user)
