@@ -93,8 +93,15 @@ class Channel(Cacheable, Injectable):
         response = await endpoint.post(
             **message.dict(exclude_none=True), files=self._construct_files(files)
         )
+        #Add exeption if it fails
         return self.cache.messages.add(MessageModel(**response))
-
+    async def pin(self, messageid):
+        if not messageid:
+            raise ValueError("You must provide a message id to pin")
+        endpoint = self.request(f"/channels/{channel.id}/pins/{message.id}")
+        response = await endpoint.put()
+        #how do i see error codes?
+        #Returns a 204 empty response on success.
     def update(self, model: ChannelModel):
         self._model = self._model.copy(update=model.dict(exclude_unset=True))
 
