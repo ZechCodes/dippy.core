@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Dippy.core"
-version = "0.0.1-alpha.2"
+version = "1.0.0-alpha.1"
 description = "Async Discord Gateway client."
 authors = ["Zech Zimmerman <hi@zech.codes>"]
 packages = [
