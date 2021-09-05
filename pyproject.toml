@@ -15,7 +15,6 @@ documentation = "https://github.com/ZechCodes/dippy.core/blob/main/readme.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 aiohttp = "^3.7.4"
-pydantic = "^1.8.1"
 gully = "^0.2.3"
 bevy = "^0.4.6"
 
