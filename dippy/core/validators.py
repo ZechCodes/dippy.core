@@ -14,10 +14,10 @@ def token_validator(instance: Any, field: Attribute, value: Any):
     )
     if not isinstance(value, str):
         raise MalformedDiscordToken(
-            f"The Discord token must be a string. {instructions}"
+            f"The Discord Token provided must be a string. {instructions}"
         )
 
     if not discord_token_pattern.match(value.strip()):
         raise MalformedDiscordToken(
-            f"The Discord token didn't look to be valid. {instructions}"
+            f"The Discord Token provided isn\'t valid. {instructions}"
         )
