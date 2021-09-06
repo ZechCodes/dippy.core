@@ -37,5 +37,11 @@ class Snowflake:
     def __hash__(self):
         return self._snowflake
 
+    def __str__(self):
+        return str(self._snowflake)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self})"
+
     def __mask(self, size: int) -> int:
         return 2 ** size - 1
