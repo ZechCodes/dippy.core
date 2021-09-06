@@ -1,7 +1,5 @@
 """Simple datetime helper module to ensure that all datetimes are UTC localized."""
-
-
-from __future__ import annotations
+from typing import Union
 import pendulum
 
 
@@ -18,6 +16,6 @@ def from_string(iso8601_datetime_string: str) -> pendulum.datetime:
     return pendulum.parse(iso8601_datetime_string, tz=pendulum.UTC)
 
 
-def from_timestamp(timestamp: int | float) -> pendulum.datetime:
+def from_timestamp(timestamp: Union[int, float]) -> pendulum.datetime:
     """Converts a timestamp to a datetime that is localized to UTC."""
     return pendulum.from_timestamp(timestamp, pendulum.UTC)
