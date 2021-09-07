@@ -10,11 +10,11 @@ _ValidatorArgType = TypeVar("_ValidatorArgType")
 _T = TypeVar("_T")
 
 
-def model(func):
     return attrs(auto_attribs=True)(func)
 
 
-@model
+def request_model(func):
+@request_model
 class BaseRequest(Protocol):
     endpoint: str
     method: str
