@@ -24,3 +24,10 @@ class MessageTypes(IntEnum):
     APPLICATION_COMMAND = 20
     THREAD_STARTER_MESSAGE = 21
     GUILD_INVITE_REMINDER = 22
+
+
+class MessageActivityTypes(IntEnum):
+    JOIN = 1
+    SPECTATE = 2
+    LISTEN = 3
+    JOIN_REQUEST = 4
