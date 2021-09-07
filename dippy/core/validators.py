@@ -4,7 +4,9 @@ from re import compile
 from typing import Any
 
 
-discord_token_pattern = compile(r"[a-zA-Z0-9_]{24}\.[a-zA-Z0-9_]{6}\.[a-zA-Z0-9_]{27}")
+discord_token_pattern = compile(
+    r"[a-zA-Z0-9_-]{24}\.[a-zA-Z0-9_-]{6}\.[a-zA-Z0-9_-]{27}"
+)
 
 
 def token_validator(instance: Any, field: Attribute, value: Any):
@@ -19,5 +21,5 @@ def token_validator(instance: Any, field: Attribute, value: Any):
 
     if not discord_token_pattern.match(value.strip()):
         raise MalformedDiscordToken(
-            f"The Discord Token provided isn\'t valid. {instructions}"
+            f"The Discord Token provided isn't valid. {instructions}"
         )
