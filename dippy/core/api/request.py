@@ -1,6 +1,7 @@
 from __future__ import annotations
 from attr import attrs, attrib, Attribute, converters, validators, resolve_types
 from dippy.core.models.base_model import BaseModel
+from dippy.core.enums.enums import Enum
 from typing import Callable, Optional, Protocol, TypeVar, Union, get_args, get_origin
 
 
@@ -22,6 +23,8 @@ def _build_converter(attribute):
         if get_origin(converter) is Union:
             args = get_args(converter)
             converter = args[0]
+            if isinstance(converter, Enum):
+                converter = converter.safe_get
             if None in args:
                 converter = converters.default_if_none(converter)
 
