@@ -1,8 +1,5 @@
 from dippy.core.enums.enums import IntEnum
 
-# TODO: Maybe include https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
-# TODO: to this file..
-
 
 class ChannelTypes(IntEnum):
     GUILD_TEXT = 0
@@ -16,3 +13,8 @@ class ChannelTypes(IntEnum):
     GUILD_PUBLIC_THREAD = 11
     GUILD_PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
+
+
+class VideoQualityModes(IntEnum):
+    AUTO = 1
+    FULL = 2
