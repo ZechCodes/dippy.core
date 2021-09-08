@@ -32,7 +32,7 @@ class GetChannelMessagesRequest:
     around: Snowflake = query_arg()
     before: Snowflake = query_arg()
     after: Snowflake = query_arg()
-    limit: Snowflake = query_arg()
+    limit: int = query_arg()
 
 
 @request_model
