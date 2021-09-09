@@ -3,7 +3,7 @@ from attr import attrs, attrib
 from dippy.core.api.request import json_arg
 from dippy.core.enums.messages import EmbedType, AllowedMentionsType
 from dippy.core.datetime_helpers import datetime, from_timestamp
-from typing import Optional, List
+from typing import Optional
 
 from dippy.core.snowflake import Snowflake
 
@@ -108,7 +108,7 @@ class ChannelMention:
 
 @attrs(auto_attribs=True)
 class AllowedMentions:
-    parse: List[AllowedMentionsType]
-    roles: List[Snowflake]
-    users: List[Snowflake]
+    parse: list[AllowedMentionsType]
+    roles: list[Snowflake]
+    users: list[Snowflake]
     replied_user: bool
