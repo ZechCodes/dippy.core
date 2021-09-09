@@ -3,6 +3,8 @@ from dippy.core.enums.messages import EmbedType
 from dippy.core.datetime_helpers import datetime, from_timestamp
 from typing import Optional
 
+from dippy.core.snowflake import Snowflake
+
 
 @attrs(auto_attribs=True)
 class EmbedAsset:
@@ -55,3 +57,23 @@ class Embed:
     fields: Optional[list[EmbedField]]
     timestamp: Optional[datetime] = attrib(converter=from_timestamp)
     type: Optional[EmbedType] = EmbedType.RICH
+
+
+@attrs(auto_attribs=True)
+class Attachment:
+    id: Snowflake
+    filename: str
+    content_type: Optional[str]
+    size: int
+    url: str
+    proxy_url: str
+    height: Optional[int]
+    width: Optional[int]
+
+
+@attrs(auto_attribs=True)
+class ChannelMention:
+    id: Snowflake
+    guild_id: Snowflake
+    type: int
+    name: str
