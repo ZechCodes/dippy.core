@@ -35,18 +35,16 @@ class DiscordRestClient:
         await self._session.close()
 
     async def request(self, request: BaseRequest) -> dict[str, Any]:
-        url = self._build_url(request)
-        return await self._make_request(request.method, url)
+        return await self._make_request(
+            request.method,
+            self._build_url(request),
+            self._get_query_args(request),
+            self._get_json_args(request),
+        )
 
     def _build_url(self, request: BaseRequest) -> str:
         url = f"https://discord.com/api/v{self.__api_version__}/{request.endpoint.lstrip('/')}"
-        url = url.format(**self._get_url_args(request))
-        url += self._build_query_args(request)
-        return url
-
-    def _build_query_args(self, request: BaseRequest):
-        args = self._get_query_args(request)
-        return f"?{urllib.parse.urlencode(args)}" if args else ""
+        return url.format(**self._get_url_args(request))
 
     def _create_user_agent(self):
         from dippy.core.version import (
@@ -69,11 +67,20 @@ class DiscordRestClient:
         )
         return ClientSession(headers=headers)
 
+    def _get_json_args(self, request: BaseRequest) -> dict[str, Any]:
+        return asdict(
+            request,
+            filter=lambda attr, value: (
+                attr.metadata.get("arg_type") == "json" and value is not NOT_SET
+            ),
+            value_serializer=lambda inst, attr, value: str(value),
+        )
+
     def _get_query_args(self, request: BaseRequest) -> dict[str, Any]:
         return asdict(
             request,
             filter=lambda attr, value: (
-                attr.metadata.get("query_arg", False) and value is not NOT_SET
+                attr.metadata.get("arg_type") == "query" and value is not NOT_SET
             ),
             value_serializer=lambda inst, attr, value: str(value),
         )
@@ -81,11 +88,22 @@ class DiscordRestClient:
     def _get_url_args(self, request: BaseRequest) -> dict[str, Any]:
         return asdict(
             request,
-            filter=lambda attr, value: not attr.metadata.get("query_arg", False),
+            filter=lambda attr, value: attr.metadata.get("arg_type") == "url",
             value_serializer=lambda inst, attr, value: urllib.parse.unquote(str(value)),
         )
 
-    async def _make_request(self, method: str, url: str) -> dict[str, Any]:
-        response = await self._session.request(method, url, **asdict(self.proxy))
+    async def _make_request(
+        self,
+        method: str,
+        url: str,
+        query_args: Optional[dict] = None,
+        json_args: Optional[dict] = None,
+    ) -> dict[str, Any]:
+        kwargs = {**asdict(self.proxy)}
+        if query_args:
+            kwargs["params"] = query_args
+        if json_args:
+            kwargs["json"] = json_args
+        response = await self._session.request(method, url, **kwargs)
         json = await response.json()
         return json
