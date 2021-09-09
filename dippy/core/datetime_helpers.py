@@ -3,7 +3,7 @@ from typing import Union
 import pendulum
 
 
-datetime = pendulum.datetime  # Just for convenience so we only need one import
+datetime = pendulum.DateTime  # Just for convenience so we only need one import
 
 
 def now() -> pendulum.datetime:
