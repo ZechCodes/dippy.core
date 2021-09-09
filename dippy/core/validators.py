@@ -14,6 +14,12 @@ def token_validator(instance: Any, field: Attribute, value: Any):
         "You can find your bot's token in the Developer Portal. Click your bot application then go to the bot section "
         "on the left. Click 'Copy'. https://discord.com/developers/applications"
     )
+    if not value:
+        value_name = {None: "None", "": "an empty string"}
+        raise MalformedDiscordToken(
+            f"The Discord Token provided was {value_name}. If you're reading the token from the local environment, "
+            f"ensure the token is set and that you're using the correct environment variable name."
+        )
     if not isinstance(value, str):
         raise MalformedDiscordToken(
             f"The Discord Token provided must be a string. {instructions}"

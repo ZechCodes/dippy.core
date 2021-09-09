@@ -48,7 +48,6 @@ def request_model(func):
 class BaseRequest(Protocol):
     endpoint: str
     method: str
-    model: Optional[BaseModel]
 
 
 def json_arg(
