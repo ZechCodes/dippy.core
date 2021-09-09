@@ -14,7 +14,7 @@ from typing import (
 )
 
 
-NOT_SET = type("NOT_SET", (object,), {"__repr__": lambda s: "NOT_SET"})
+from dippy.core.not_set import NOT_SET
 _ConverterType = TypeVar("_ConverterType")
 _ValidatorArgType = TypeVar("_ValidatorArgType")
 _T = TypeVar("_T")

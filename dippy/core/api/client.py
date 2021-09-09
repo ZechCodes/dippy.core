@@ -2,7 +2,8 @@ from __future__ import annotations
 from aiohttp import ClientSession
 from asyncio import AbstractEventLoop, get_running_loop
 from attr import asdict, attrs, attrib, setters
-from dippy.core.api.request import BaseRequest, NOT_SET
+from dippy.core.api.request import BaseRequest
+from dippy.core.not_set import NOT_SET
 from dippy.core.validators import token_validator
 from typing import Any, Optional
 import urllib.parse
