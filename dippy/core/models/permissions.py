@@ -1,5 +1,6 @@
 from attr import attrs
 from typing import Optional
+from dippy.core.enums.permissions import PermissionType
 from dippy.core.snowflake import Snowflake
 
 
@@ -21,3 +22,11 @@ class Role:
     managed: bool
     mentionable: bool
     tags: Optional[RoleTags]
+
+
+@attrs(auto_attribs=True)
+class PermissionOverwrite:
+    id: Snowflake
+    type: PermissionType
+    allow: str
+    deny: str
