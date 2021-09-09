@@ -1,7 +1,7 @@
 from dippy.core.enums.enums import IntEnum, StrEnum
 
 
-class MessageTypes(IntEnum):
+class MessageType(IntEnum):
     DEFAULT = 0
     RECIPIENT_ADD = 1
     RECIPIENT_REMOVE = 2
@@ -26,7 +26,7 @@ class MessageTypes(IntEnum):
     GUILD_INVITE_REMINDER = 22
 
 
-class MessageActivityTypes(IntEnum):
+class MessageActivityType(IntEnum):
     JOIN = 1
     SPECTATE = 2
     LISTEN = 3
@@ -40,3 +40,10 @@ class EmbedType(StrEnum):
     GIF = "gifv"  # animated gif image embed rendered as a video embed
     ARTICLE = "article"  # article embed
     LINK = "link"  # link embed
+
+
+# FIXME: Don't believe this class should remain in this file. Maybe create a new one for mentions?
+class AllowedMentionsType(StrEnum):
+    ROLE_MENTIONS = "roles"  # Controls role mentions
+    USER_MENTIONS = "users"  # Controls user mentions
+    EVERYONE_MENTIONS = "everyone"  # Controls @everyone and @here mentions

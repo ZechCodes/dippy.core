@@ -1,7 +1,7 @@
 from dippy.core.enums.enums import IntEnum
 
 
-class ChannelTypes(IntEnum):
+class ChannelType(IntEnum):
     GUILD_TEXT = 0
     DM = 1
     GUILD_VOICE = 2
@@ -15,6 +15,6 @@ class ChannelTypes(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 
-class VideoQualityModes(IntEnum):
+class VideoQualityMode(IntEnum):
     AUTO = 1
     FULL = 2
