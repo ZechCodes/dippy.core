@@ -1,4 +1,6 @@
 from attr import attrs, attrib
+
+from dippy.core.api.request import json_arg
 from dippy.core.enums.messages import EmbedType, AllowedMentionsType
 from dippy.core.datetime_helpers import datetime, from_timestamp
 from typing import Optional, List
@@ -22,30 +24,28 @@ class EmbedProvider:
 
 @attrs(auto_attribs=True)
 class EmbedAuthor:
-    name: Optional[str]
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
+    name: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 256)
 
 
 @attrs(auto_attribs=True)
 class EmbedFooter:
-    text: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
+    text: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 2048)
 
 
 @attrs(auto_attribs=True)
 class EmbedField:
-    name: str
-    value: str
+    name: str = json_arg(validator=lambda inst, attr, value: len(value) <= 256)
+    value: str = json_arg(validator=lambda inst, attr, value: len(value) <= 1024)
     inline: Optional[bool] = False
 
 
 @attrs(auto_attribs=True)
 class Embed:
-    title: Optional[str]
-    description: Optional[str]
     url: Optional[str]
     color: Optional[int]
     footer: Optional[EmbedFooter]
@@ -54,8 +54,10 @@ class Embed:
     video: Optional[EmbedAsset]
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
-    fields: Optional[list[EmbedField]]
     timestamp: Optional[datetime] = attrib(converter=from_timestamp)
+    title: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 256)
+    description: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 4096)
+    fields: Optional[list[EmbedField]] = json_arg(validator=lambda inst, attr, value: len(list[EmbedField]) <= 25)
     type: Optional[EmbedType] = EmbedType.RICH
 
 
