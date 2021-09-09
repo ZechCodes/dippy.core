@@ -7,5 +7,6 @@ from dippy.core.snowflake import Snowflake
 class GetGuildMember:
     endpoint = "/guilds/{guild_id}/members/{user_id}"
     method = "GET"
+
     guild_id: Snowflake = url_arg()
     user_id: Snowflake = url_arg()
