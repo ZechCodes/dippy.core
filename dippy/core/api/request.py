@@ -1,20 +1,10 @@
 from __future__ import annotations
-from attr import attrs, attrib, Attribute, converters, validators, resolve_types
-from dippy.core.models.base_model import BaseModel
-from dippy.core.enums.enums import Enum
-from typing import (
-    Any,
-    Callable,
-    Optional,
-    Protocol,
-    TypeVar,
-    Union,
-    get_args,
-    get_origin,
-)
-
-
+from attr import attrs, attrib, Attribute, resolve_types
 from dippy.core.not_set import NOT_SET
+from dippy.core.converters import build_converter
+from typing import Any, Callable, Optional, Protocol, TypeVar
+
+
 _ConverterType = TypeVar("_ConverterType")
 _ValidatorArgType = TypeVar("_ValidatorArgType")
 _T = TypeVar("_T")
@@ -22,22 +12,7 @@ _T = TypeVar("_T")
 
 def setup_converters(cls, fields: list[Attribute]) -> list[Attribute]:
     resolve_types(cls, attribs=fields)
-    return [a.evolve(converter=_build_converter(a)) for a in fields]
-
-
-def _build_converter(attribute):
-    converter = attribute.converter
-    if not attribute.converter:
-        converter = attribute.type
-        if get_origin(converter) is Union:
-            args = get_args(converter)
-            converter = args[0]
-            if isinstance(converter, Enum):
-                converter = converter.safe_get
-            if None in args:
-                converter = converters.default_if_none(converter)
-
-    return lambda value: value if value is NOT_SET else converter(value)
+    return [a.evolve(converter=build_converter(a)) for a in fields]
 
 
 def request_model(func):
