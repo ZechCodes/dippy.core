@@ -1,7 +1,7 @@
 from dippy.core.enums.enums import IntEnum, StrEnum
 
 
-class MessageTypes(IntEnum):
+class MessageType(IntEnum):
     DEFAULT = 0
     RECIPIENT_ADD = 1
     RECIPIENT_REMOVE = 2
@@ -26,7 +26,7 @@ class MessageTypes(IntEnum):
     GUILD_INVITE_REMINDER = 22
 
 
-class MessageActivityTypes(IntEnum):
+class MessageActivityType(IntEnum):
     JOIN = 1
     SPECTATE = 2
     LISTEN = 3
