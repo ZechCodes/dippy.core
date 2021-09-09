@@ -40,3 +40,10 @@ class EmbedType(StrEnum):
     GIF = "gifv"  # animated gif image embed rendered as a video embed
     ARTICLE = "article"  # article embed
     LINK = "link"  # link embed
+
+
+# FIXME: Don't believe this class should remain in this file. Maybe create a new one for mentions?
+class AllowedMentionsType(StrEnum):
+    ROLE_MENTIONS = "roles"  # Controls role mentions
+    USER_MENTIONS = "users"  # Controls user mentions
+    EVERYONE_MENTIONS = "everyone"  # Controls @everyone and @here mentions
