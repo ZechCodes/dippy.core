@@ -1,7 +1,7 @@
 from attr import attrs, attrib
-from dippy.core.enums.messages import EmbedType
+from dippy.core.enums.messages import EmbedType, AllowedMentionsType
 from dippy.core.datetime_helpers import datetime, from_timestamp
-from typing import Optional
+from typing import Optional, List
 
 from dippy.core.snowflake import Snowflake
 
@@ -77,3 +77,11 @@ class ChannelMention:
     guild_id: Snowflake
     type: int
     name: str
+
+
+@attrs(auto_attribs=True)
+class AllowedMentions:
+    parse: List[AllowedMentionsType]
+    roles: List[Snowflake]
+    users: List[Snowflake]
+    replied_user: bool
