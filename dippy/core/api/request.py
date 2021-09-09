@@ -2,7 +2,16 @@ from __future__ import annotations
 from attr import attrs, attrib, Attribute, converters, validators, resolve_types
 from dippy.core.models.base_model import BaseModel
 from dippy.core.enums.enums import Enum
-from typing import Callable, Optional, Protocol, TypeVar, Union, get_args, get_origin
+from typing import (
+    Any,
+    Callable,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    get_args,
+    get_origin,
+)
 
 
 NOT_SET = type("NOT_SET", (object,), {"__repr__": lambda s: "NOT_SET"})
@@ -42,22 +51,30 @@ class BaseRequest(Protocol):
     model: Optional[BaseModel]
 
 
+def json_arg(
+    default: Optional[_T] = NOT_SET,
+    validator: Optional[_ValidatorArgType[_T]] = None,
+    converter: Optional[_ConverterType] = None,
+    factory: Optional[Callable[[], _T]] = None,
+):
+    kwargs = _build_kwargs(validator, converter, factory)
+    kwargs["metadata"] = {"arg_type": "json"}
+    kwargs["kw_only"] = True
+    kwargs["default"] = default
+
+    return attrib(**kwargs)
+
+
 def query_arg(
     default: Optional[_T] = NOT_SET,
     validator: Optional[_ValidatorArgType[_T]] = None,
     converter: Optional[_ConverterType] = None,
     factory: Optional[Callable[[], _T]] = None,
 ):
-    kwargs = {"metadata": {"query_arg": True}, "kw_only": True, "default": default}
-
-    if validator:
-        kwargs["validator"] = validator
-
-    if converter:
-        kwargs["converter"] = converter
-
-    if factory:
-        kwargs["factory"] = factory
+    kwargs = _build_kwargs(validator, converter, factory)
+    kwargs["metadata"] = {"arg_type": "query"}
+    kwargs["kw_only"] = True
+    kwargs["default"] = default
 
     return attrib(**kwargs)
 
@@ -68,10 +85,16 @@ def url_arg(
     converter: Optional[_ConverterType] = None,
     factory: Optional[Callable[[], _T]] = None,
 ):
-    kwargs = {"metadata": {"query_arg": False}}
+    kwargs = _build_kwargs(validator, converter, factory)
+    kwargs["metadata"] = {"arg_type": "url"}
     if default is not NOT_SET:
         kwargs["default"] = default
 
+    return attrib(**kwargs)
+
+
+def _build_kwargs(validator, converter, factory) -> dict[str, Any]:
+    kwargs = {}
     if validator:
         kwargs["validator"] = validator
 
@@ -81,4 +104,4 @@ def url_arg(
     if factory:
         kwargs["factory"] = factory
 
-    return attrib(**kwargs)
+    return kwargs
