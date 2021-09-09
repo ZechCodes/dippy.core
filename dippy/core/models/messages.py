@@ -44,7 +44,7 @@ class EmbedField:
 class Embed:
     title: Optional[str]
     description: Optional[str]
-    url: Optional[datetime] = attrib(converter=from_timestamp)
+    url: Optional[str]
     color: Optional[int]
     footer: Optional[EmbedFooter]
     image: Optional[EmbedAsset]
@@ -53,4 +53,5 @@ class Embed:
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
     fields: Optional[list[EmbedField]]
+    timestamp: Optional[datetime] = attrib(converter=from_timestamp)
     type: Optional[EmbedType] = EmbedType.RICH
