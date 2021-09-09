@@ -8,6 +8,27 @@ from typing import Optional
 
 
 @attrs(auto_attribs=True)
+class MessageReference:
+    message_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
+    guild_id: Optional[Snowflake]
+    fail_if_not_exists: Optional[bool]
+
+
+@attrs(auto_attribs=True)
+class FollowedChannel:
+    channel_id: Snowflake
+    webhook_id: Snowflake
+
+
+@attrs(auto_attribs=True)
+class Reaction:
+    count: int
+    me: bool
+    emoji: Snowflake  # FIXME: Emoji
+
+
+@attrs(auto_attribs=True)
 class Overwrite:
     id: Snowflake
     type: int
