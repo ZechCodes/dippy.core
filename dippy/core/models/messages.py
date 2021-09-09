@@ -9,6 +9,14 @@ from dippy.core.snowflake import Snowflake
 
 
 @attrs(auto_attribs=True)
+class Overwrite:
+    id: Snowflake
+    type: int
+    allow: str
+    deny: str
+
+
+@attrs(auto_attribs=True)
 class EmbedAsset:
     url: Optional[str]
     proxy_url: Optional[str]
