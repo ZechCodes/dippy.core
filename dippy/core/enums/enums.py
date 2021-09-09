@@ -24,5 +24,9 @@ class IntEnum(int, Enum):
     ...
 
 
+class IntFlag(_enum.IntFlag, Enum):
+    ...
+
+
 class StrEnum(str, Enum):
     ...
