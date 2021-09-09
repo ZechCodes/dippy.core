@@ -1,4 +1,4 @@
-from dippy.core.enums.enums import IntEnum
+from dippy.core.enums.enums import IntEnum, StrEnum
 
 
 class MessageTypes(IntEnum):
@@ -31,3 +31,12 @@ class MessageActivityTypes(IntEnum):
     SPECTATE = 2
     LISTEN = 3
     JOIN_REQUEST = 4
+
+
+class EmbedType(StrEnum):
+    RICH = "rich"  # generic embed rendered from embed attributes
+    IMAGE = "image"  # image embed
+    VIDEO = "video"  # video embed
+    GIF = "gifv"  # animated gif image embed rendered as a video embed
+    ARTICLE = "article"  # article embed
+    LINK = "link"  # link embed
