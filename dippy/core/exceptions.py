@@ -8,3 +8,7 @@ class MalformedDiscordToken(DippyCoreBaseException):
 
 class NoCacheControllerFound(DippyCoreBaseException):
     """Raised when attempting to get something from the cache using a model that has no registered cache controller."""
+
+
+class NotFoundInCache(DippyCoreBaseException):
+    """Raised when a CacheView attempts to access an item on an object that is no longer in the cache."""
