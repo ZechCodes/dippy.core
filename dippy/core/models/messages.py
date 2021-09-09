@@ -17,6 +17,23 @@ class Overwrite:
 
 
 @attrs(auto_attribs=True)
+class ThreadMetadata:
+    archived: bool
+    auto_archive_duration: int
+    archive_timestamp: datetime = attrib(converter=from_timestamp)
+    locked: bool
+    invitable: Optional[bool]
+
+
+@attrs(auto_attribs=True)
+class ThreadMember:
+    id: Optional[Snowflake]
+    user_id: Optional[Snowflake]
+    join_timestamp: datetime = attrib(converter=from_timestamp)
+    flags: int
+
+
+@attrs(auto_attribs=True)
 class EmbedAsset:
     url: Optional[str]
     proxy_url: Optional[str]
