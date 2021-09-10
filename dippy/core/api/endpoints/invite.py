@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Optional
 from dippy.core.api.request import url_arg, request_model, query_arg
-from dippy.core.snowflake import Snowflake
 
 
 @request_model
