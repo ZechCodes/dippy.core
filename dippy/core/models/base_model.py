@@ -2,7 +2,9 @@ from attr import attrs
 from collections.abc import Mapping
 from dippy.core.converters import build_converter
 from dippy.core.not_set import NOT_SET
-from typing import Any, Generator, get_type_hints, Iterable, Union
+from enum import Enum
+from inspect import getmodule
+from typing import Any, Generator, get_type_hints, get_origin, Iterable, Union
 
 
 @attrs(auto_attribs=True)
@@ -72,4 +74,19 @@ class BaseModel:
     @classmethod
     def __get_fields(cls) -> Generator[Field, None, None]:
         for name, annotation in get_type_hints(cls).items():
-            yield Field(name, annotation, getattr(cls, name, NOT_SET))
+            if cls.__allowed_field(annotation):
+                yield Field(name, annotation, getattr(cls, name, NOT_SET))
+
+    @classmethod
+    def __allowed_field(cls, annotation_type: Any) -> bool:
+        """Only allow fields that are attrs classes, models, enums, special annotations, or builtins."""
+        if hasattr(annotation_type, "__attrs_attrs__"):
+            return True
+
+        if issubclass(annotation_type, (BaseModel, Enum)):
+            return True
+
+        if get_origin(annotation_type):
+            return True
+
+        return getmodule(annotation_type) is getmodule(dict)
