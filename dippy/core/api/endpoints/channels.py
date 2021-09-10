@@ -11,6 +11,7 @@ class GetChannelRequest:
 
     channel_id: Snowflake = url_arg()
 
+
 # TODO: Implement PATCH /channels/{channel.id} | Modify Channel Endpoint
 #  Requires checks if a channel is a thread/DM/channel
 
@@ -18,6 +19,7 @@ class GetChannelRequest:
 @request_model
 class DeleteChannelRequest:
     """Deletes a channel or closes a private message."""
+
     endpoint = "/channels/{channel_id}"
     method = "DELETE"
 
@@ -78,7 +80,9 @@ class DeleteOwnReactionRequest:
 
 @request_model
 class DeleteUserReactionRequest:
-    endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
+    endpoint = (
+        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
+    )
     method = "DELETE"
 
     channel_id: Snowflake = url_arg()
