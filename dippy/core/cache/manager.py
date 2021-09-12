@@ -6,10 +6,6 @@ from dippy.core.cache.controller import (
     MemberController,
 )
 from dippy.core.exceptions import NoCacheControllerFound
-from dippy.core.models.channels import Channel
-from dippy.core.models.guilds import Guild
-from dippy.core.models.messages import Message
-from dippy.core.models.users import Member, User
 from typing import Any, Type, TypeVar
 
 
@@ -94,6 +90,11 @@ class CacheManager(CacheManagerABC):
 
     def setup(self):
         """Called when the cache manager is created. This is intended for registering cache controllers."""
+        from dippy.core.models.channels import Channel
+        from dippy.core.models.guilds import Guild, Member
+        from dippy.core.models.messages import Message
+        from dippy.core.models.users import User
+
         self.add_cache_controller(Channel, BasicController)
         self.add_cache_controller(Guild, BasicController)
         self.add_cache_controller(Member, MemberController)
