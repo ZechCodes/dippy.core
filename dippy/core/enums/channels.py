@@ -15,6 +15,11 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 
+class PrivacyLevel(IntEnum):
+    PUBLIC = 1  # The Stage instance is visible publicly, such as on Stage Discovery.
+    GUILD_ONLY = 2  # The Stage instance is visible to only guild members.
+
+
 class VideoQualityMode(IntEnum):
     AUTO = 1
     FULL = 2
