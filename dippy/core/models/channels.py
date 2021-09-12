@@ -1,6 +1,7 @@
+from __future__ import annotations
 from attr import attrs, attrib
 from dippy.core.datetime_helpers import datetime, from_string
-from dippy.core.enums.channels import ChannelType, VideoQualityMode
+from dippy.core.enums.channels import ChannelType, PrivacyLevel, VideoQualityMode
 from dippy.core.models.base_model import BaseModel
 from dippy.core.models.permissions import PermissionOverwrite
 from dippy.core.models.users import User
@@ -52,3 +53,13 @@ class Channel(BaseModel):
     member: Optional[ThreadMember]
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
+
+
+@attrs(auto_attribs=True)
+class Stage:
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Snowflake
+    topic: str
+    privacy_level: PrivacyLevel
+    discoverable_disabled: bool
