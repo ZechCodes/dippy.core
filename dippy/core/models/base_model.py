@@ -1,19 +1,38 @@
+from __future__ import annotations
 from attr import attrs
+from bevy.inject import dependencies, Inject, Injectable
 from collections.abc import Mapping
-from dippy.core.converters import build_converter
+from dippy.core.cache.manager import CacheManager
+from dippy.core.converters import build_converter, get_annotation_type
 from dippy.core.not_set import NOT_SET
-from enum import Enum
-from inspect import getmodule
-from typing import Any, Generator, get_type_hints, get_origin, Iterable, Union
+from typing import (
+    Any,
+    Generator,
+    get_type_hints,
+    Iterable,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
+
+
+Model = TypeVar("Model")
 
 
 @attrs(auto_attribs=True)
-class Field:
+class InternalField:
     name: str
     converter: Any
     value: Union[Any, NOT_SET]
 
 
+@attrs(auto_attribs=True)
+class Field:
+    index: Optional[Sequence[str]]
+
+
+@dependencies
 class BaseModel:
     """Base implementation that provides all the tooling necessary to provide an efficient view of a dictionary object.
 
@@ -29,6 +48,8 @@ class BaseModel:
     ```
     """
 
+    cache: Inject[CacheManager]
+
     def __init_subclass__(cls, **kwargs):
         fields = list(cls.__get_fields())
         cls.__build_fields(fields)
@@ -41,13 +62,15 @@ class BaseModel:
         """This method is built by the subclass init class hook."""
 
     @classmethod
-    def __build_fields(cls, fields: Iterable[Field]):
+    def __build_fields(cls, fields: Iterable[InternalField]):
         for field in fields:
             cls.__create_field_property(field)
 
     @classmethod
-    def __build_repr(cls, fields: Iterable[Field]):
-        field_strings = " ".join(f"{{self.{field.name}=}}" for field in fields)
+    def __build_repr(cls, fields: Iterable[InternalField]):
+        field_strings = " ".join(
+            f"{field.name}={{self.{field.name}}}" for field in fields
+        )
 
         exec(
             f"def __repr__(self): return f'<{cls.__name__} {field_strings}>'\ncls.__repr__ = __repr__",
@@ -56,37 +79,66 @@ class BaseModel:
         )
 
     @classmethod
-    def __create_field_property(cls, field: Field):
+    def __create_field_property(cls, field: InternalField):
         code = f"@property\ndef {field.name}(self):\n"
         if field.value is not NOT_SET:
             code += f"    if {field.name!r} not in self._data: return default\n"
-        code += f"    return converter(self._data.get({field.name!r}))"
+
+        annotation_type, _ = get_annotation_type(field.converter)
+        if isinstance(annotation_type, type) and issubclass(annotation_type, BaseModel):
+            index = "data['id']"
+            if isinstance(field.value, Field):
+                _index = [
+                    v
+                    for idx in field.value.index.split(".")
+                    if (v := cls.__convert_dot_path_to_dict_lookup(idx))
+                ]
+                if _index:
+                    index = ", ".join(_index)
+
+            code += (
+                f"    data = self._data.get({field.name!r})\n"
+                f"    return self.cache.get(model_type, {index})"
+            )
+        else:
+            code += f"    return converter(self._data.get({field.name!r}))"
+
         if field.value is NOT_SET:
             code += f"if {field.name!r} in self._data else None"
+
         code += f"\ncls.{field.name} = {field.name}"
 
         exec(
             code,
-            {"default": field.value, "converter": build_converter(field), **vars(cls)},
+            {
+                "default": field.value,
+                "converter": build_converter(field),
+                "model_type": annotation_type,
+                **vars(cls),
+            },
             {"cls": cls},
         )
 
     @classmethod
-    def __get_fields(cls) -> Generator[Field, None, None]:
+    def __get_fields(cls) -> Generator[InternalField, None, None]:
         for name, annotation in get_type_hints(cls).items():
             if cls.__allowed_field(annotation):
-                yield Field(name, annotation, getattr(cls, name, NOT_SET))
+                yield InternalField(name, annotation, getattr(cls, name, NOT_SET))
 
     @classmethod
     def __allowed_field(cls, annotation_type: Any) -> bool:
-        """Only allow fields that are attrs classes, models, enums, special annotations, or builtins."""
-        if hasattr(annotation_type, "__attrs_attrs__"):
-            return True
+        """Ignore anything that relies on Bevy."""
+        return not isinstance(annotation_type, Injectable) or (
+            isinstance(annotation_type, type)
+            and issubclass(annotation_type, Injectable)
+        )
 
-        if issubclass(annotation_type, (BaseModel, Enum)):
-            return True
+    @staticmethod
+    def __convert_dot_path_to_dict_lookup(dot_path: str) -> Optional[str]:
+        result = []
+        for item in dot_path.split("."):
+            if not item.isidentifier():
+                return
+            result.append(f"[{item!r}]")
 
-        if get_origin(annotation_type):
-            return True
-
-        return getmodule(annotation_type) is getmodule(dict)
+        return "".join(result)

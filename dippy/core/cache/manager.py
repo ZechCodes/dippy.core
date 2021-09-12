@@ -72,7 +72,9 @@ class CacheManager(CacheManagerABC):
         controller is found that matches the given model.
 
         :raise NoCacheControllerFound"""
-        return model(self.get_cache_controller(model).get(*args))
+        return self.__bevy_context__.build(
+            model, self.get_cache_controller(model).get(*args)
+        )
 
     def get_cache_controller(
         self, model: Type[ModelType]

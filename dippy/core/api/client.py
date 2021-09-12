@@ -2,10 +2,13 @@ from __future__ import annotations
 from aiohttp import ClientSession
 from asyncio import AbstractEventLoop, get_running_loop
 from attr import asdict, attrs, attrib, setters
+from bevy import Context, dependencies, Inject
 from dippy.core.api.request import BaseRequest
+from dippy.core.cache.manager import CacheManager
+from dippy.core.models.base_model import BaseModel
 from dippy.core.not_set import NOT_SET
 from dippy.core.validators import token_validator
-from typing import Any, Optional
+from typing import Any, Optional, Type, Union
 import urllib.parse
 
 
@@ -16,9 +19,12 @@ class ClientProxy:
     proxy_headers: Optional[dict[str, Any]] = None
 
 
-@attrs(auto_attribs=True, on_setattr=setters.frozen)
+@attrs(on_setattr=setters.frozen)
+@dependencies
 class DiscordRestClient:
     __api_version__ = 9
+    cache: Inject[CacheManager]
+
     token: str = attrib(converter=str.strip, default="", validator=token_validator)
     client_name: str = attrib(converter=str.strip, default="dippy.core", kw_only=True)
     loop: AbstractEventLoop = attrib(factory=get_running_loop, kw_only=True)
@@ -35,13 +41,26 @@ class DiscordRestClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._session.close()
 
-    async def request(self, request: BaseRequest) -> dict[str, Any]:
-        return await self._make_request(
+    def create_model(self, request: BaseRequest, response: dict[str, Any]):
+        model = getattr(request, "model", None)
+        if not model:
+            return response
+
+        if issubclass(model, BaseModel):
+            return self._create_with_cache(model, request, response)
+
+        return model(**response)
+
+    async def request(
+        self, request: BaseRequest
+    ) -> Union[BaseModel, Type, dict[str, Any]]:
+        response = await self._make_request(
             request.method,
             self._build_url(request),
             self._get_query_args(request),
             self._get_json_args(request),
         )
+        return self.create_model(request, response)
 
     def _build_url(self, request: BaseRequest) -> str:
         url = f"https://discord.com/api/v{self.__api_version__}/{request.endpoint.lstrip('/')}"
@@ -67,6 +86,15 @@ class DiscordRestClient:
             }
         )
         return ClientSession(headers=headers)
+
+    def _create_with_cache(self, model, request: BaseRequest, response: dict[str, Any]):
+        index = (
+            request.get_index(response)
+            if hasattr(request, "get_index")
+            else (response["id"],)
+        )
+        self.cache.update(model, *index, data=response)
+        return self.cache.get(model, *index)
 
     def _get_json_args(self, request: BaseRequest) -> dict[str, Any]:
         return asdict(
@@ -108,3 +136,10 @@ class DiscordRestClient:
         response = await self._session.request(method, url, **kwargs)
         json = await response.json()
         return json
+
+    @classmethod
+    def connect(cls, token: str, **kwargs) -> DiscordRestClient:
+        context = Context()
+        client = context.build(DiscordRestClient, token, **kwargs)
+        context.add(client)
+        return client

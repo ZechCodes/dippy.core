@@ -2,12 +2,14 @@ from __future__ import annotations
 from typing import Optional
 from dippy.core.api.request import request_model, query_arg, url_arg
 from dippy.core.snowflake import Snowflake
+from dippy.core.models.channels import Channel
 
 
 @request_model
 class GetChannelRequest:
     endpoint = "/channels/{channel_id}"
     method = "GET"
+    model: Channel
 
     channel_id: Snowflake = url_arg()
 
