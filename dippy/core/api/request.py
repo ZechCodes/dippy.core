@@ -1,8 +1,8 @@
 from __future__ import annotations
 from attr import attrs, attrib, Attribute, resolve_types
-from dippy.core.not_set import NOT_SET
 from dippy.core.converters import build_converter
-from typing import Any, Callable, Optional, Protocol, TypeVar
+from dippy.core.not_set import NOT_SET
+from typing import Any, Callable, Optional, Protocol, Type, TypeVar
 
 
 _ConverterType = TypeVar("_ConverterType")
@@ -20,9 +20,10 @@ def request_model(func):
 
 
 @request_model
-class BaseRequest(Protocol):
+class BaseRequest(Protocol[_T]):
     endpoint: str
     method: str
+    model: Optional[Type[_T]] = None
 
 
 def json_arg(
