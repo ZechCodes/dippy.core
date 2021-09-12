@@ -1,22 +1,12 @@
 from __future__ import annotations
-from dippy.core.cache.abc import CacheManagerABC
-from dippy.core.cache.controller import (
-    CacheController,
-    BasicController,
-    MemberController,
-)
-from dippy.core.exceptions import NoCacheControllerFound
-from dippy.core.models.channels import Channel
-from dippy.core.models.guilds import Guild
-from dippy.core.models.messages import Message
-from dippy.core.models.users import Member, User
+from abc import ABC, abstractmethod
 from typing import Any, Type, TypeVar
 
 
 ModelType = TypeVar("ModelType")
 
 
-class CacheManager(CacheManagerABC):
+class CacheManagerABC(ABC):
     """Manages multiple cache controllers.
 
     Cache controllers can be registered for any model type, the controller will then be created when it is needed. All
@@ -50,13 +40,6 @@ class CacheManager(CacheManagerABC):
     model instances themselves are distinct.
     """
 
-    def __init__(self):
-        self._cache_controllers: dict[
-            Type[ModelType], Type[CacheController[ModelType]]
-        ] = {}
-        self._controllers: dict[Type[ModelType], CacheController[ModelType]] = {}
-        self.setup()
-
     def add_cache_controller(
         self, model: Type[ModelType], controller: Type[CacheController[ModelType]]
     ):
@@ -66,7 +49,6 @@ class CacheManager(CacheManagerABC):
 
         This method ideally shouldn't be called outside of the cache manager's `setup` method. It is however safe to
         call immediately after instantiating the manager."""
-        self._cache_controllers[model] = controller
 
     def get(self, model: Type[ModelType], *args) -> ModelType:
         """Get's an object from the cache controller that is registered for models of the requested type. The return
@@ -76,7 +58,6 @@ class CacheManager(CacheManagerABC):
         controller is found that matches the given model.
 
         :raise NoCacheControllerFound"""
-        return model(self.get_cache_controller(model).get(*args))
 
     def get_cache_controller(
         self, model: Type[ModelType]
@@ -87,36 +68,12 @@ class CacheManager(CacheManagerABC):
         requested model `NoCacheControllerFound` will be raised.
 
         :raise NoCacheControllerFound"""
-        model_type = self._get_registered_type(model)
-        if model_type not in self._controllers:
-            self._controllers[model_type] = self._cache_controllers[model_type](self)
-        return self._controllers[model_type]
 
     def setup(self):
         """Called when the cache manager is created. This is intended for registering cache controllers."""
-        self.add_cache_controller(Channel, BasicController)
-        self.add_cache_controller(Guild, BasicController)
-        self.add_cache_controller(Member, MemberController)
-        self.add_cache_controller(Message, BasicController)
-        self.add_cache_controller(User, BasicController)
 
     def update(self, model: Type[ModelType], *args, data: dict[str, Any]):
         """Updates an object in the appropriate cache controller. Will raise `NoCacheControllerFound` if no cache
         controller is found that matches the given model.
 
         :raise NoCacheControllerFound"""
-        self.get_cache_controller(model).update(*args, data=data)
-
-    def _get_registered_type(self, model: Type[ModelType]) -> Type[ModelType]:
-        for model_type, controller_type in self._cache_controllers.items():
-            if (
-                issubclass(model, model_type)
-                or issubclass(model_type, model)
-                or model is model_type
-            ):
-                return model_type
-
-        else:
-            raise NoCacheControllerFound(
-                f"No cache controller has been registered for models of type {model!r}"
-            )
