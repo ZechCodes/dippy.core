@@ -11,7 +11,7 @@ class Snowflake:
     __discord_epoch_offset_ms = 1420070400000
 
     def __init__(self, snowflake: int):
-        self._snowflake = snowflake
+        self._snowflake = int(snowflake)
 
     @cached_property
     def increment(self) -> int:
@@ -33,6 +33,9 @@ class Snowflake:
 
     def __eq__(self, other):
         return isinstance(other, Snowflake) and hash(other) == hash(self)
+
+    def __int__(self):
+        return self._snowflake
 
     def __hash__(self):
         return self._snowflake
