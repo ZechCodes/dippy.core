@@ -46,3 +46,21 @@ def test_model_optional():
     t = TestModel({})
 
     assert t.id is None
+
+
+def test_model_indexes():
+    class TestModel(Model):
+        id: Snowflake = Field(index=True)
+        name: str = "Bob"
+
+    t = TestModel({"id": 1234567890})
+
+    assert t.__dippy_index__ == (Snowflake(1234567890),)
+
+    class TestModel(Model):
+        id: Snowflake = Field(index=True)
+        name: str = Field(default="Bob", index=True)
+
+    t = TestModel({"id": 1234567890})
+
+    assert t.__dippy_index__ == (Snowflake(1234567890), "Bob")

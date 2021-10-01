@@ -129,6 +129,7 @@ class Model:
     The underlying state is accessible through the __dippy_state__ property."""
 
     __slots__ = ["_state", "_snapshot"]
+    _index_fields = tuple()
 
     def __init_subclass__(cls, **kwargs):
         cls._build_fields()
@@ -136,6 +137,11 @@ class Model:
     def __init__(self, state: dict[str, _t.Any], *, snapshot: bool = False):
         self._snapshot = snapshot
         self._state = state
+
+    @property
+    def __dippy_index__(self) -> tuple[_t.Any]:
+        """A tuple containing the values that should be used to identify the instance. Useful for caching."""
+        return tuple(getattr(self, name) for name in self._index_fields)
 
     @property
     def __dippy_state__(self) -> _MappingProxyType:
@@ -155,8 +161,9 @@ class Model:
 
     @classmethod
     def _build_fields(cls):
-        fields = cls._get_fields()
+        fields = list(cls._get_fields())
         cls._create_properties(fields)
+        cls._save_index_fields(fields)
 
     @classmethod
     def _configure_field_annotation(cls, field: Field, annotation: _t.Any):
@@ -193,9 +200,13 @@ class Model:
             @property
             def {name}(self):
                 value = self._state.get("{name}", NOTSET)
+                if field.default is not NOTSET and value is NOTSET:
+                    return field.default
+
                 for converter in field.converters:
                     value = converter(value)
-                return value
+
+                return value"""
         )
 
         if not field.immutable:
@@ -259,3 +270,10 @@ class Model:
 
                 cls._configure_field_annotation(field, annotation)
                 yield name, field
+
+    @classmethod
+    def _save_index_fields(cls, fields: _t.Iterable[tuple[str, Field]]):
+        cls._index_fields = (
+            *cls._index_fields,
+            *(name for name, field in fields if field.index),
+        )
