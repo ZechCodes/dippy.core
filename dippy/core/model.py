@@ -215,6 +215,9 @@ class Model:
     @staticmethod
     def _create_validator(types: tuple[_t.Type]) -> _VALIDATOR:
         def validator(value: _t.Any) -> bool:
+            if value is None and type(None) in types:
+                return True
+
             validator_ = find_validator(type(value))
             if validator_ and not validator_(value):
                 return False
