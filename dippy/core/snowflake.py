@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dippy.core.datetime_helpers import datetime, from_timestamp
+from dippy.core.model import register_converter
 from functools import cached_property
+from typing import Union
 
 
 class Snowflake:
@@ -48,3 +50,14 @@ class Snowflake:
 
     def __mask(self, size: int) -> int:
         return 2 ** size - 1
+
+
+@register_converter(Snowflake)
+def snowflake_converter(value: Union[str, int, Snowflake]):
+    if isinstance(value, str):
+        return Snowflake(int(value))
+
+    if isinstance(value, int):
+        return Snowflake(value)
+
+    return value
