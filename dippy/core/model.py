@@ -98,6 +98,7 @@ class Field:
     default: _t.Any = NOTSET
     index: bool = False
     key_name: _t.Optional[str] = None
+    immutable: bool = False
     converters: _t.Iterable[_CONVERTER] = _d.field(default_factory=tuple)
     validators: _t.Iterable[_VALIDATOR] = _d.field(default_factory=tuple)
 
@@ -195,19 +196,23 @@ class Model:
                 for converter in field.converters:
                     value = converter(value)
                 return value
-                
-            @{name}.setter
-            def {name}(self, value):
-                for converter in field.converters:
-                    value = converter(value)
-    
-                for validator in field.validators:
-                    if not validator(value):
-                        return            
-    
-                self._state["{name}"] = value
-            """
         )
+
+        if not field.immutable:
+            method += _textwrap.dedent(
+                f"""
+                @{name}.setter
+                def {name}(self, value):
+                    for converter in field.converters:
+                        value = converter(value)
+        
+                    for validator in field.validators:
+                        if not validator(value):
+                            return            
+        
+                    self._state["{name}"] = value
+                """
+            )
 
         exec(method, {"field": field, **globals()}, locals_ := {})
         return _t.cast(property, locals_[name])

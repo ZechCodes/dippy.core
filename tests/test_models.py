@@ -1,5 +1,6 @@
-from dippy.core.model import Model
+from dippy.core.model import Field, Model
 from dippy.core.snowflake import Snowflake
+from pytest import raises
 from typing import Optional
 
 
@@ -22,6 +23,16 @@ def test_model():
     t.name = 1337
     assert isinstance(t.name, str)
     assert t.name == "Bob"
+
+
+def test_model_immutable_fields():
+    class TestModel(Model):
+        name: str = Field(immutable=True)
+
+    t = TestModel({"name": "Bob"})
+
+    with raises(AttributeError):
+        t.name = "kaboom"
 
 
 def test_model_optional():
