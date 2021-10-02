@@ -282,7 +282,8 @@ class Model:
 
     @classmethod
     def _set_cache_type(cls, cache_type: _t.Optional[str]):
-        cls.__dippy_cache_type__ = cache_type
+        if cache_type:
+            cls.__dippy_cache_type__ = cache_type
 
 
 ModelType = _t.TypeVar("ModelType", bound=Model)
