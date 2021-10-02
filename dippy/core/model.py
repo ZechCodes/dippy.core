@@ -129,10 +129,12 @@ class Model:
     The underlying state is accessible through the __dippy_state__ property."""
 
     __slots__ = ["_state", "_snapshot"]
-    _index_fields = tuple()
+    __dippy_index_fields__: tuple[str, ...] = tuple()
+    __dippy_cache_type__: _t.Optional[str] = None
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, cache_type: _t.Optional[str] = None, **kwargs):
         cls._build_fields()
+        cls._set_cache_type(cache_type)
 
     def __init__(self, state: dict[str, _t.Any], *, snapshot: bool = False):
         self._snapshot = snapshot
@@ -141,7 +143,7 @@ class Model:
     @property
     def __dippy_index__(self) -> tuple[_t.Any]:
         """A tuple containing the values that should be used to identify the instance. Useful for caching."""
-        return tuple(getattr(self, name) for name in self._index_fields)
+        return tuple(getattr(self, name) for name in self.__dippy_index_fields__)
 
     @property
     def __dippy_state__(self) -> _MappingProxyType:
@@ -273,7 +275,14 @@ class Model:
 
     @classmethod
     def _save_index_fields(cls, fields: _t.Iterable[tuple[str, Field]]):
-        cls._index_fields = (
-            *cls._index_fields,
+        cls.__dippy_index_fields__ = (
+            *cls.__dippy_index_fields__,
             *(name for name, field in fields if field.index),
         )
+
+    @classmethod
+    def _set_cache_type(cls, cache_type: _t.Optional[str]):
+        cls.__dippy_cache_type__ = cache_type
+
+
+ModelType = _t.TypeVar("ModelType", bound=Model)

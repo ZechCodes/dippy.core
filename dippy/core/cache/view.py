@@ -1,19 +1,23 @@
 from collections.abc import Mapping
-from dippy.core.cache.controller import CacheController
+from dippy.core.cache.cache import CacheProtocol
 from dippy.core.exceptions import NotFoundInCache
+from dippy.core.snowflake import Snowflake
+from typing import Union
 
 
 class CacheView(Mapping):
-    def __init__(self, controller: CacheController, *args):
-        self._controller = controller
+    def __init__(
+        self, cache: CacheProtocol, id_lookup: tuple[Union[str, int, Snowflake]]
+    ):
+        self._cache = cache
         self._id_lookup = args
 
     @property
     def data(self):
-        data = self._controller.get(*self._id_lookup)
+        data = self._cache.get(self._id_lookup)
         if data is None:
             raise NotFoundInCache(
-                f"The {self._controller!r} was unable to find an object matching {self._id_lookup!r}"
+                f"The {self._cache!r} was unable to find an object matching {self._id_lookup!r}"
             )
         return data
 
