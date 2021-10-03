@@ -1,49 +1,49 @@
 from __future__ import annotations
-from attr import attrs, attrib
-from dippy.core.datetime_helpers import datetime, from_string
+from dippy.core.datetime_helpers import datetime
 from dippy.core.enums.channels import ChannelType, PrivacyLevel, VideoQualityMode
-from dippy.core.models.base_model import BaseModel
+from dippy.core.model import Model, Field
+from dippy.core.models.applications import Application
+from dippy.core.models.guilds import Guild
+from dippy.core.models.messages import Message
 from dippy.core.models.permissions import PermissionOverwrite
 from dippy.core.models.users import User
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
 
-@attrs(auto_attribs=True)
-class ThreadMetadata:
+class ThreadMetadata(Model):
     archived: bool
     auto_archive_duration: int
-    archive_timestamp: datetime = attrib(converter=from_string)
+    archive_timestamp: datetime
     locked: bool
     invitable: Optional[bool]
 
 
-@attrs(auto_attribs=True)
-class ThreadMember:
-    id: Optional[Snowflake]  # Thread ID
-    user_id: Optional[Snowflake]
-    join_timestamp: datetime = attrib(converter=from_string)
+class ThreadMember(Model):
+    thread: Optional[Channel] = Field(key_name="id", index=True)  # Thread ID
+    user: Optional[User] = Field(key_name="user_id")
+    join_timestamp: datetime
     flags: int
 
 
-class Channel(BaseModel):
-    id: Snowflake
+class Channel(Model, cache_type="channel"):
+    id: Snowflake = Field(index=True)
     type: ChannelType
-    guild_id: Optional[Snowflake]
+    guild: Optional[Guild] = Field(key_name="guild_id")
     position: Optional[int]
     permission_overwrites: Optional[list[PermissionOverwrite]]
     name: Optional[str]
     topic: Optional[str]
     nsfw: bool
-    last_message_id: Optional[Snowflake]
+    last_message: Optional[Message] = Field(key_name="last_message_id")
     bitrate: Optional[int]
     user_limit: Optional[int]
     rate_limit_per_user: Optional[int]
     recipients: Optional[list[User]]
     icon: Optional[str]
-    owner_id: Optional[Snowflake]
-    application_id: Optional[Snowflake]
-    parent_id: Optional[Snowflake]
+    owner: Optional[User] = Field(key_name="owner_id")
+    application: Optional[Application] = Field(key_name="application_id")
+    parent: Optional[Channel] = Field(key_name="parent_id")
     last_pin_timestamp: Optional[datetime]
     rtc_region: Optional[str]
     video_quality_mode: Optional[VideoQualityMode]
@@ -55,11 +55,10 @@ class Channel(BaseModel):
     permissions: Optional[str]
 
 
-@attrs(auto_attribs=True)
-class Stage:
-    id: Snowflake
-    guild_id: Snowflake
-    channel_id: Snowflake
+class Stage(Model, cach_type="channel"):
+    id: Snowflake = Field(index=True)
+    guild: Guild = Field(key_name="guild_id")
+    channel: Channel = Field(key_name="channel_id")
     topic: str
     privacy_level: PrivacyLevel
     discoverable_disabled: bool
