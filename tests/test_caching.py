@@ -71,3 +71,35 @@ def test_complex_container_attributes_tuple():
     assert isinstance(parent.children, tuple)
     assert len(parent.children) == 2
     assert isinstance(parent.children[0], Child)
+
+
+def test_uncachable_models():
+    class Child(Model):
+        id: int = Field(index=True)
+        name: str
+
+    class Parent(Model):
+        child: Child
+
+    context = Context()
+    parent_a = context.build(Parent, {"child": {"id": 1, "name": "Bob"}})
+    parent_b = context.build(Parent, {"child": {"id": 1, "name": "Billy"}})
+
+    assert isinstance(parent_a.child, Child)
+    assert parent_a.child is not parent_b.child
+    assert parent_a.child.name != parent_b.child.name
+
+
+def test_uncachable_container_models():
+    class Child(Model):
+        id: int = Field(index=True)
+
+    class Parent(Model):
+        children: tuple[Child]
+
+    context = Context()
+    parent = context.build(Parent, {"children": [{"id": 1}, {"id": 2}]})
+
+    assert isinstance(parent.children, tuple)
+    assert len(parent.children) == 2
+    assert isinstance(parent.children[0], Child)

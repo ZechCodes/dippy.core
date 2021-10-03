@@ -1,5 +1,5 @@
 from __future__ import annotations
-from bevy import Inject as _Inject
+from bevy.inject import Inject as _Inject, Injectable as _Injectable
 from functools import partial as _partial
 from types import MappingProxyType as _MappingProxyType
 import dataclasses as _d
@@ -155,7 +155,7 @@ class Field:
         self.validators = (validator, *self.validators)
 
 
-class Model:
+class Model(_Injectable):
     """Base class for constructing models in a declarative fashion that rely on an underlying state dictionary. The
     intention is to allow for objects that can share cached state.
 
@@ -209,15 +209,22 @@ class Model:
 
         return type(self)(self._state.copy(), snapshot=True)
 
-    def _get_cache_container(
+    def _get_model_container(
         self,
         value: _cache.DiscordObject,
         container: _t.Type[_t.Sequence],
         model: _t.Type[ModelType],
     ) -> _t.Sequence[ModelType]:
-        return container(self._get_cache_model(item, model) for item in value)
+        return container(self._get_model(item, model) for item in value)
 
-    def _get_cache_model(
+    def _get_model(
+        self, value: _cache.DiscordObject, model: _t.Type[ModelType]
+    ) -> _t.Optional[ModelType]:
+        if model.__dippy_cache_type__:
+            return self._get_model_from_cache(value, model)
+        return self.__bevy_context__.build(model, value)
+
+    def _get_model_from_cache(
         self, value: _cache.DiscordObject, model: _t.Type[ModelType]
     ) -> _t.Optional[ModelType]:
         key = self.cache.get_key(model, value)
@@ -276,9 +283,9 @@ class Model:
                     
                 if field.model_type:
                     if field.container_type:
-                        value = self._get_cache_container(value, field.container_type, field.model_type)
+                        value = self._get_model_container(value, field.container_type, field.model_type)
                     else:
-                        value = self._get_cache_model(value, field.model_type)
+                        value = self._get_model(value, field.model_type)
 
                 return value"""
         )
