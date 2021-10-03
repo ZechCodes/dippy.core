@@ -4,6 +4,7 @@ from functools import partial as _partial
 from types import MappingProxyType as _MappingProxyType
 import dataclasses as _d
 import textwrap as _textwrap
+import dippy.core.cache.manager as _cache
 import typing as _t
 
 
@@ -15,6 +16,13 @@ _VALIDATOR = _t.Callable[[_t.Any], bool]
 
 _converters: dict[_t.Type, _CONVERTER] = {}
 _validators: dict[_t.Type, _VALIDATOR] = {}
+
+
+def safe_is_subclass(cls, base_type) -> bool:
+    if not isinstance(cls, type):
+        return False
+
+    return issubclass(cls, base_type)
 
 
 @_t.overload
@@ -101,6 +109,44 @@ class Field:
     immutable: bool = False
     converters: _t.Iterable[_CONVERTER] = _d.field(default_factory=tuple)
     validators: _t.Iterable[_VALIDATOR] = _d.field(default_factory=tuple)
+    annotation: _t.Optional[_t.Any] = _d.field(default=None, init=False)
+
+    @property
+    def model_type(self) -> _t.Optional[Model]:
+        annotation = _t.get_origin(self.annotation) or self.annotation
+        if safe_is_subclass(annotation, Model):
+            return annotation
+
+        args = _t.get_args(self.annotation)
+        if args:
+            annotation = _t.get_origin(args[0]) or args[0]
+            if safe_is_subclass(annotation, _t.Iterable):
+                args = _t.get_args(args[0])
+                annotation = _t.get_origin(args[0]) or args[0]
+
+            if safe_is_subclass(annotation, Model):
+                return annotation
+
+        return None
+
+    @property
+    def container_type(self) -> _t.Optional[_t.Type]:
+        annotation = _t.get_origin(self.annotation) or self.annotation
+        if annotation is _t.Union:
+            args = _t.get_args(annotation)
+            annotation = _t.get_origin(args[0]) or args[0]
+
+        if safe_is_subclass(annotation, _t.Iterable):
+            return _t.get_origin(annotation) or annotation
+
+        return None
+
+    @property
+    def is_optional(self) -> bool:
+        if _t.get_origin(self.annotation) is not _t.Union:
+            return False
+
+        return type(None) in _t.get_args(self.annotation)
 
     def add_type_converter(self, converter: _CONVERTER):
         self.converters = (converter, *self.converters)
@@ -129,10 +175,12 @@ class Model:
     The underlying state is accessible through the __dippy_state__ property."""
 
     __slots__ = ["_state", "_snapshot"]
+    cache: _Inject[_cache.CacheManager]
     __dippy_index_fields__: tuple[str, ...] = tuple()
     __dippy_cache_type__: _t.Optional[str] = None
 
     def __init_subclass__(cls, cache_type: _t.Optional[str] = None, **kwargs):
+        cls.cache = _Inject(_cache.CacheManager)
         cls._build_fields()
         cls._set_cache_type(cache_type)
 
@@ -160,6 +208,24 @@ class Model:
             return self
 
         return type(self)(self._state.copy(), snapshot=True)
+
+    def _get_cache_container(
+        self,
+        value: _cache.DiscordObject,
+        container: _t.Type[_t.Sequence],
+        model: _t.Type[ModelType],
+    ) -> _t.Sequence[ModelType]:
+        return container(self._get_cache_model(item, model) for item in value)
+
+    def _get_cache_model(
+        self, value: _cache.DiscordObject, model: _t.Type[ModelType]
+    ) -> _t.Optional[ModelType]:
+        key = self.cache.get_key(model, value)
+        ret = self.cache.get(model, *key)
+        if not ret:
+            self.cache.update(model, value, *key)
+            ret = self.cache.get(model, *key)
+        return ret
 
     @classmethod
     def _build_fields(cls):
@@ -207,6 +273,12 @@ class Model:
 
                 for converter in field.converters:
                     value = converter(value)
+                    
+                if field.model_type:
+                    if field.container_type:
+                        value = self._get_cache_container(value, field.container_type, field.model_type)
+                    else:
+                        value = self._get_cache_model(value, field.model_type)
 
                 return value"""
         )
@@ -267,6 +339,7 @@ class Model:
                 field = Field(key_name=name)
 
             if isinstance(field, Field):
+                field.annotation = annotation
                 if not field.key_name:
                     field.key_name = name
 
