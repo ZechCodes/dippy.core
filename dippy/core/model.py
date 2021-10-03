@@ -1,5 +1,6 @@
 from __future__ import annotations
 from bevy.inject import Inject as _Inject, Injectable as _Injectable
+from dippy.core.datetime_helpers import from_string, datetime
 from functools import partial as _partial
 from types import MappingProxyType as _MappingProxyType
 import dataclasses as _d
@@ -99,6 +100,9 @@ def find_validator(validator_type: _t.Type) -> _t.Optional[_VALIDATOR]:
     for type_, validator in _validators.items():
         if issubclass(validator_type, type_):
             return validator
+
+
+register_converter(datetime, lambda v: from_string(v) if isinstance(v, str) else v)
 
 
 @_d.dataclass
