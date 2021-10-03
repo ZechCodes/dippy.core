@@ -106,7 +106,7 @@ class Field:
     default: _t.Any = NOTSET
     index: bool = False
     key_name: _t.Optional[str] = None
-    immutable: bool = False
+    assignable: bool = False
     converters: _t.Iterable[_CONVERTER] = _d.field(default_factory=tuple)
     validators: _t.Iterable[_VALIDATOR] = _d.field(default_factory=tuple)
     annotation: _t.Optional[_t.Any] = _d.field(default=None, init=False)
@@ -283,7 +283,7 @@ class Model:
                 return value"""
         )
 
-        if not field.immutable:
+        if field.assignable:
             method += _textwrap.dedent(
                 f"""
                 @{name}.setter
