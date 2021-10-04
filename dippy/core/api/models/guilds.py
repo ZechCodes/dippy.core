@@ -11,15 +11,15 @@ from dippy.core.enums.guilds import (
     TwoFactorAuthentication,
     VerificationLevel,
 )
-from dippy.core.models.base_model import BaseModel
-from dippy.core.models.channels import Channel, Stage
-from dippy.core.models.emoji import Emoji
-from dippy.core.models.permissions import Role
-from dippy.core.models.presences import Presence
-from dippy.core.models.stickers import Sticker
-from dippy.core.models.users import User
+from dippy.core.api.models.base_model import BaseModel
 from dippy.core.snowflake import Snowflake
 from typing import Optional
+import dippy.core.api.models.channels as _channels
+import dippy.core.api.models.emoji as _emoji
+import dippy.core.api.models.permissions as _permissions
+import dippy.core.api.models.presences as _presences
+import dippy.core.api.models.stickers as _stickers
+import dippy.core.api.models.users as _users
 
 
 @attrs(auto_attribs=True)
@@ -40,7 +40,7 @@ class VoiceState:
 
 
 class Member(BaseModel):
-    user: Optional[User]
+    user: Optional[_users.User]
     nick: Optional[str]
     roles: list[Snowflake]
     joined_at: datetime
@@ -75,8 +75,8 @@ class Guild(BaseModel):
     verification_level: VerificationLevel
     default_message_notifications: NotificationLevel
     explicit_content_filter: ExplicitContentFilterLevel
-    roles: list[Role]
-    emojis: list[Emoji]
+    roles: list[_permissions.Role]
+    emojis: list[_emoji.Emoji]
     features: list[GuildFeature]
     mfa_level: TwoFactorAuthentication
     application_id: Optional[Snowflake]
@@ -89,9 +89,9 @@ class Guild(BaseModel):
     member_count: Optional[int]
     voice_states: Optional[list[VoiceState]]
     members: Optional[list[Member]]
-    channels: Optional[list[Channel]]
-    threads: Optional[list[Channel]]
-    presences: Optional[list[Presence]]
+    channels: Optional[list[_channels.Channel]]
+    threads: Optional[list[_channels.Channel]]
+    presences: Optional[list[_presences.Presence]]
     max_presences: Optional[int]
     max_members: Optional[int]
     vanity_url_code: Optional[str]
@@ -106,8 +106,8 @@ class Guild(BaseModel):
     approximate_presence_count: Optional[int]
     welcome_screen: WelcomeScreen
     nsfw_level: Optional[NSFWLevel]
-    stage_instances: Optional[list[Stage]]
-    stickers: Optional[list[Sticker]]
+    stage_instances: Optional[list[_channels.Stage]]
+    stickers: Optional[list[_stickers.Sticker]]
 
 
 @attrs(auto_attribs=True)

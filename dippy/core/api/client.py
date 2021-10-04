@@ -5,7 +5,7 @@ from attr import asdict, attrs, attrib, setters
 from bevy import Context, dependencies, Inject
 from dippy.core.api.request import BaseRequest
 from dippy.core.cache.manager import CacheManager
-from dippy.core.models.base_model import BaseModel
+from dippy.core.api.models import BaseModel
 from dippy.core.not_set import NOT_SET
 from dippy.core.validators import token_validator
 from typing import Any, Optional, Type, Union
@@ -42,7 +42,7 @@ class DiscordRestClient:
         await self._session.close()
 
     def create_model(self, request: BaseRequest, response: dict[str, Any]):
-        model = getattr(request, "model", None)
+        model = getattr(request, "models", None)
         if not model:
             return response
 
@@ -51,9 +51,7 @@ class DiscordRestClient:
 
         return model(**response)
 
-    async def request(
-        self, request: BaseRequest
-    ) -> Union[BaseModel, Type, dict[str, Any]]:
+    async def request(self, request: BaseRequest) -> Union[BaseModel, Type, dict[str, Any]]:
         response = await self._make_request(
             request.method,
             self._build_url(request),
@@ -88,29 +86,21 @@ class DiscordRestClient:
         return ClientSession(headers=headers)
 
     def _create_with_cache(self, model, request: BaseRequest, response: dict[str, Any]):
-        index = (
-            request.get_index(response)
-            if hasattr(request, "get_index")
-            else (response["id"],)
-        )
+        index = request.get_index(response) if hasattr(request, "get_index") else (response["id"],)
         self.cache.update(model, *index, data=response)
         return self.cache.get(model, *index)
 
     def _get_json_args(self, request: BaseRequest) -> dict[str, Any]:
         return asdict(
             request,
-            filter=lambda attr, value: (
-                attr.metadata.get("arg_type") == "json" and value is not NOT_SET
-            ),
+            filter=lambda attr, value: (attr.metadata.get("arg_type") == "json" and value is not NOT_SET),
             value_serializer=lambda inst, attr, value: str(value),
         )
 
     def _get_query_args(self, request: BaseRequest) -> dict[str, Any]:
         return asdict(
             request,
-            filter=lambda attr, value: (
-                attr.metadata.get("arg_type") == "query" and value is not NOT_SET
-            ),
+            filter=lambda attr, value: (attr.metadata.get("arg_type") == "query" and value is not NOT_SET),
             value_serializer=lambda inst, attr, value: str(value),
         )
 

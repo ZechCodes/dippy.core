@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dippy.core.api.request import request_model, query_arg, url_arg
-from dippy.core.models.guilds import Guild, Member
+from dippy.core.api.models.guilds import Guild, Member
 from dippy.core.snowflake import Snowflake
 
 

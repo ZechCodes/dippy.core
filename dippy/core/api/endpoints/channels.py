@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional
 from dippy.core.api.request import request_model, query_arg, url_arg
 from dippy.core.snowflake import Snowflake
-from dippy.core.models.channels import Channel
+from dippy.core.api.models.channels import Channel
 
 
 @request_model
@@ -82,9 +82,7 @@ class DeleteOwnReactionRequest:
 
 @request_model
 class DeleteUserReactionRequest:
-    endpoint = (
-        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
-    )
+    endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
     method = "DELETE"
 
     channel_id: Snowflake = url_arg()

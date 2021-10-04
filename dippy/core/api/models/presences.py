@@ -1,8 +1,8 @@
 from attr import attrs
 from typing import Optional
 from dippy.core.enums.users import Status
-from dippy.core.models.activity import Activity
-from dippy.core.models.users import User
+from dippy.core.api.models.activity import Activity
+from dippy.core.api.models.users import User
 from dippy.core.snowflake import Snowflake
 
 

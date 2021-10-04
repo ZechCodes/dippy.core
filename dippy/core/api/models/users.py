@@ -1,4 +1,4 @@
-from dippy.core.models.base_model import BaseModel
+from dippy.core.api.models.base_model import BaseModel
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 

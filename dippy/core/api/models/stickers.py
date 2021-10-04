@@ -1,7 +1,7 @@
 from __future__ import annotations
 from attr import attrs
 from dippy.core.enums.stickers import StickerType, StickerFormatType
-from dippy.core.models.users import User
+from dippy.core.api.models.users import User
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 

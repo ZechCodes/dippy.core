@@ -51,9 +51,10 @@ class BaseModel:
     cache: Inject[CacheManager]
 
     def __init_subclass__(cls, **kwargs):
-        fields = list(cls.__get_fields())
-        cls.__build_fields(fields)
-        cls.__build_repr(fields)
+        # fields = list(cls.__get_fields())
+        # cls.__build_fields(fields)
+        # cls.__build_repr(fields)
+        ...
 
     def __init__(self, data: Mapping):
         self._data = data

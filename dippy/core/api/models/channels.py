@@ -1,14 +1,15 @@
 from __future__ import annotations
 from dippy.core.datetime_helpers import datetime
 from dippy.core.enums.channels import ChannelType, PrivacyLevel, VideoQualityMode
-from dippy.core.model import Model, Field
-from dippy.core.models.applications import Application
-from dippy.core.models.guilds import Guild
-from dippy.core.models.messages import Message
-from dippy.core.models.permissions import PermissionOverwrite
-from dippy.core.models.users import User
+from dippy.core.model.models import Model
+from dippy.core.model.fields import Field
 from dippy.core.snowflake import Snowflake
 from typing import Optional
+import dippy.core.api.models.applications as _applications
+import dippy.core.api.models.guilds as _guilds
+import dippy.core.api.models.messages as _messages
+import dippy.core.api.models.permissions as _permissions
+import dippy.core.api.models.users as _users
 
 
 class ThreadMetadata(Model):
@@ -21,7 +22,7 @@ class ThreadMetadata(Model):
 
 class ThreadMember(Model):
     thread: Optional[Channel] = Field(key_name="id", index=True)  # Thread ID
-    user: Optional[User] = Field(key_name="user_id")
+    user: Optional[_users.User] = Field(key_name="user_id")
     join_timestamp: datetime
     flags: int
 
@@ -29,20 +30,20 @@ class ThreadMember(Model):
 class Channel(Model, cache_type="channel"):
     id: Snowflake = Field(index=True)
     type: ChannelType
-    guild: Optional[Guild] = Field(key_name="guild_id")
+    guild: Optional[_guilds.Guild] = Field(key_name="guild_id")
     position: Optional[int]
-    permission_overwrites: Optional[list[PermissionOverwrite]]
+    permission_overwrites: Optional[list[_permissions.PermissionOverwrite]]
     name: Optional[str]
     topic: Optional[str]
     nsfw: bool
-    last_message: Optional[Message] = Field(key_name="last_message_id")
+    last_message: Optional[_messages.Message] = Field(key_name="last_message_id")
     bitrate: Optional[int]
     user_limit: Optional[int]
     rate_limit_per_user: Optional[int]
-    recipients: Optional[list[User]]
+    recipients: Optional[list[_users.User]]
     icon: Optional[str]
-    owner: Optional[User] = Field(key_name="owner_id")
-    application: Optional[Application] = Field(key_name="application_id")
+    owner: Optional[_users.User] = Field(key_name="owner_id")
+    application: Optional[_applications.Application] = Field(key_name="application_id")
     parent: Optional[Channel] = Field(key_name="parent_id")
     last_pin_timestamp: Optional[datetime]
     rtc_region: Optional[str]
@@ -57,7 +58,7 @@ class Channel(Model, cache_type="channel"):
 
 class Stage(Model, cach_type="channel"):
     id: Snowflake = Field(index=True)
-    guild: Guild = Field(key_name="guild_id")
+    guild: _guilds.Guild = Field(key_name="guild_id")
     channel: Channel = Field(key_name="channel_id")
     topic: str
     privacy_level: PrivacyLevel

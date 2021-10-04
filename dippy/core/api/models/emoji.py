@@ -1,5 +1,5 @@
 from attr import attrs
-from dippy.core.models.users import User
+from dippy.core.api.models.users import User
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
