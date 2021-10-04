@@ -14,7 +14,7 @@ def build_converter(attribute):
 
     if isinstance(converter, Enum):
         converter = converter.safe_get
-    if issubclass(converter, datetime):
+    if isinstance(converter, type) and issubclass(converter, datetime):
         converter = (
             lambda dt: from_timestamp(int(dt))
             if isinstance(dt, int) or dt.isdigit()
