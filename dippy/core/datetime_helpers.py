@@ -1,4 +1,5 @@
 """Simple datetime helper module to ensure that all datetimes are UTC localized."""
+from dippy.core.model.converters import register_converter
 from typing import Union
 import pendulum
 
@@ -11,8 +12,12 @@ def now() -> pendulum.datetime:
     return pendulum.now(pendulum.UTC)
 
 
+@register_converter(datetime)
 def from_string(iso8601_datetime_string: str) -> pendulum.datetime:
     """Converts a datetime string to a datetime that is localized to UTC."""
+    if not isinstance(iso8601_datetime_string, str):
+        return iso8601_datetime_string
+
     return pendulum.parse(iso8601_datetime_string, tz=pendulum.UTC)
 
 
