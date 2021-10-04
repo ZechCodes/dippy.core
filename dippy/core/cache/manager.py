@@ -21,5 +21,5 @@ class CacheManager(Injectable):
         key = key if key else self.get_key(model, data)
         self._caches[model.__dippy_cache_type__].update(key, data)
 
-    def get_key(self, model: m.ModelType, data: DiscordObject) -> Key:
+    def get_key(self, model: Type[m.ModelType], data: DiscordObject) -> Key:
         return tuple(data[key] for key in model.__dippy_index_fields__)
