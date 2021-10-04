@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dippy.core.datetime_helpers import datetime, from_timestamp
-from dippy.core.model import register_converter
+from dippy.core.model.converters import register_converter
 from functools import cached_property
 from typing import Union
 
@@ -29,9 +29,7 @@ class Snowflake:
 
     @cached_property
     def timestamp(self) -> datetime:
-        return from_timestamp(
-            ((self._snowflake >> 22) + self.__discord_epoch_offset_ms) / 1000
-        )
+        return from_timestamp(((self._snowflake >> 22) + self.__discord_epoch_offset_ms) / 1000)
 
     def __eq__(self, other):
         return isinstance(other, Snowflake) and hash(other) == hash(self)
