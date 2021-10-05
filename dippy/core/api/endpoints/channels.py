@@ -82,7 +82,9 @@ class DeleteOwnReactionRequest:
 
 @request_model
 class DeleteUserReactionRequest:
-    endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
+    endpoint = (
+        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
+    )
     method = "DELETE"
 
     channel_id: Snowflake = url_arg()

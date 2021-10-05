@@ -67,12 +67,16 @@ class Model(bevy.Injectable):
     ) -> typing.Sequence[ModelType]:
         return container(self._get_model(item, model) for item in value)
 
-    def _get_model(self, value: DiscordObject, model: typing.Type[ModelType]) -> typing.Optional[ModelType]:
+    def _get_model(
+        self, value: DiscordObject, model: typing.Type[ModelType]
+    ) -> typing.Optional[ModelType]:
         if model.__dippy_cache_type__:
             return self._get_model_from_cache(value, model)
         return self.__bevy_context__.build(model, value)
 
-    def _get_model_from_cache(self, value: DiscordObject, model: typing.Type[ModelType]) -> typing.Optional[ModelType]:
+    def _get_model_from_cache(
+        self, value: DiscordObject, model: typing.Type[ModelType]
+    ) -> typing.Optional[ModelType]:
         key = self.cache.get_key(model, value)
         ret = self.cache.get(model, *key)
         if not ret:
@@ -92,7 +96,9 @@ class Model(bevy.Injectable):
         for name, annotation in cls.__annotations__.items():
             field: typing.Union[fields.Field, typing.Any] = getattr(cls, name, None)
             if not field or not isinstance(field, fields.Field):
-                field = fields.Field(key_name=name, default=fields.NOTSET if field is None else field)
+                field = fields.Field(
+                    key_name=name, default=fields.NOTSET if field is None else field
+                )
             elif not field.key_name:
                 field.key_name = name
 

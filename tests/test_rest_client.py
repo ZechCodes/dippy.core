@@ -13,14 +13,20 @@ from os import getenv
 @mark.asyncio
 async def test_rest_client():
     async with DiscordRestClient(getenv("DISCORD_TOKEN", "")) as client:
-        resp = await client.request(GetAuditLogRequest(Snowflake(getenv("GUILD_ID", 0)), limit=1))
+        resp = await client.request(
+            GetAuditLogRequest(Snowflake(getenv("GUILD_ID", 0)), limit=1)
+        )
         assert len(resp["audit_log_entries"]) == 1
 
 
 @mark.asyncio
 async def test_get_member():
     async with DiscordRestClient(getenv("DISCORD_TOKEN", "")) as client:
-        resp = await client.request(GetGuildMember(Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))))
+        resp = await client.request(
+            GetGuildMember(
+                Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))
+            )
+        )
         assert isinstance(resp, Member)
 
 
@@ -28,8 +34,14 @@ async def test_get_member():
 async def test_member_cached():
     context = Context()
     async with context.build(DiscordRestClient, getenv("DISCORD_TOKEN", "")) as client:
-        resp = await client.request(GetGuildMember(Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))))
-        member = context.get(CacheManager).get(Member, getenv("GUILD_ID", 0), getenv("USER_ID", 0))
+        resp = await client.request(
+            GetGuildMember(
+                Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))
+            )
+        )
+        member = context.get(CacheManager).get(
+            Member, getenv("GUILD_ID", 0), getenv("USER_ID", 0)
+        )
         assert resp._data is member._data
 
 
@@ -37,7 +49,11 @@ async def test_member_cached():
 async def test_user_cached():
     context = Context()
     async with context.build(DiscordRestClient, getenv("DISCORD_TOKEN", "")) as client:
-        member = await client.request(GetGuildMember(Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))))
+        member = await client.request(
+            GetGuildMember(
+                Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))
+            )
+        )
         user = await client.request(GetUser(Snowflake(getenv("USER_ID", 0))))
         assert user._data is member.user._data
 

@@ -29,7 +29,9 @@ class Snowflake:
 
     @cached_property
     def timestamp(self) -> datetime:
-        return from_timestamp(((self._snowflake >> 22) + self.__discord_epoch_offset_ms) / 1000)
+        return from_timestamp(
+            ((self._snowflake >> 22) + self.__discord_epoch_offset_ms) / 1000
+        )
 
     def __eq__(self, other):
         return isinstance(other, Snowflake) and hash(other) == hash(self)

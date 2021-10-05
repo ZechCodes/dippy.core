@@ -72,14 +72,18 @@ class EmbedAuthor:
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-    name: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 256)
+    name: Optional[str] = json_arg(
+        validator=lambda inst, attr, value: len(value) <= 256
+    )
 
 
 @attrs(auto_attribs=True)
 class EmbedFooter:
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-    text: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 2048)
+    text: Optional[str] = json_arg(
+        validator=lambda inst, attr, value: len(value) <= 2048
+    )
 
 
 @attrs(auto_attribs=True)
@@ -100,9 +104,15 @@ class Embed:
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
     timestamp: Optional[datetime] = attrib(converter=from_timestamp)
-    title: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 256)
-    description: Optional[str] = json_arg(validator=lambda inst, attr, value: len(value) <= 4096)
-    fields: Optional[list[EmbedField]] = json_arg(validator=lambda inst, attr, value: len(list[EmbedField]) <= 25)
+    title: Optional[str] = json_arg(
+        validator=lambda inst, attr, value: len(value) <= 256
+    )
+    description: Optional[str] = json_arg(
+        validator=lambda inst, attr, value: len(value) <= 4096
+    )
+    fields: Optional[list[EmbedField]] = json_arg(
+        validator=lambda inst, attr, value: len(list[EmbedField]) <= 25
+    )
     type: Optional[EmbedType] = EmbedType.RICH
 
 

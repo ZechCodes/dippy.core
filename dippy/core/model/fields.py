@@ -30,7 +30,9 @@ class Field:
     validator: typing.Optional[VALIDATOR] = None
     raw_annotation: AnnotationWrapperGetter = dataclass_field(init=False)
 
-    def __get__(self, model: typing.Optional[models.Model], cls: typing.Type[models.Model]) -> typing.Any:
+    def __get__(
+        self, model: typing.Optional[models.Model], cls: typing.Type[models.Model]
+    ) -> typing.Any:
         if not model:
             return self
 
@@ -41,7 +43,9 @@ class Field:
         value = self._apply_converters(value)
         if self.model_type:
             if self.container_type:
-                value = self._build_model_container(value, model.__bevy_context__, model.cache)
+                value = self._build_model_container(
+                    value, model.__bevy_context__, model.cache
+                )
             else:
                 value = self._build_model(value, model.__bevy_context__, model.cache)
 
@@ -49,7 +53,9 @@ class Field:
 
     def __set__(self, model: models.Model, value: typing.Any):
         if not self.assignable:
-            raise AttributeError(f"The {type(model).__qualname__}.{self.key_name} field is not assignable")
+            raise AttributeError(
+                f"The {type(model).__qualname__}.{self.key_name} field is not assignable"
+            )
 
         if not self._validate(value):
             return
@@ -72,7 +78,9 @@ class Field:
         args = typing.get_args(raw_annotation)
         if args:
             annotation = typing.get_origin(args[0]) or args[0]
-            if safe_is_subclass(annotation, typing.Sequence) and not safe_is_subclass(annotation, str):
+            if safe_is_subclass(annotation, typing.Sequence) and not safe_is_subclass(
+                annotation, str
+            ):
                 args = typing.get_args(args[0])
                 annotation = typing.get_origin(args[0]) or args[0]
 
@@ -130,17 +138,22 @@ class Field:
 
         return value
 
-
-
-    def _build_model(self, value: DiscordObject, context: bevy.Context, cache: CacheManager) -> typing.Optional[Model]:
+    def _build_model(
+        self, value: DiscordObject, context: bevy.Context, cache: CacheManager
+    ) -> typing.Optional[Model]:
         if self.model_type.__dippy_cache_type__:
             return self._get_model_from_cache(value, cache)
         return context.build(self.model_type, value)
 
     def _build_model_container(
-        self, value: typing.Sequence[DiscordObject], context: bevy.Context, cache: CacheManager
+        self,
+        value: typing.Sequence[DiscordObject],
+        context: bevy.Context,
+        cache: CacheManager,
     ) -> typing.Sequence[models.Model]:
-        return self.container_type(self._build_model(item, context, cache) for item in value)
+        return self.container_type(
+            self._build_model(item, context, cache) for item in value
+        )
 
     def _get_annotation_types(self) -> tuple[typing.Type, ...]:
         annotation = self.annotation
@@ -150,7 +163,9 @@ class Field:
 
         return tuple(typing.cast(typing.Type, typing.get_origin(t) or t) for t in types)
 
-    def _get_model_from_cache(self, value: DiscordObject, cache: CacheManager) -> typing.Optional[models.Model]:
+    def _get_model_from_cache(
+        self, value: DiscordObject, cache: CacheManager
+    ) -> typing.Optional[models.Model]:
         model = self.model_type
         if not model:
             return
