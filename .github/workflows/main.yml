@@ -23,12 +23,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Python Blacken
-        # You may pin to the exact commit or the version.
-        # uses: piotrpawlaczek/python-blacken@00da49d5262ea8408aa006873de629fef9fc9dd1
-        uses: piotrpawlaczek/python-blacken@v20.8b1
-        with:
-          line-length: '88'
-          sanity-check: 'safe'
-          only-check: 'no'
+      
+      - name: Black Code Formatter
+        uses: lgeiger/black-action@v1.0.1
