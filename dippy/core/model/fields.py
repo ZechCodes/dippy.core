@@ -140,7 +140,7 @@ class Field:
 
     def _build_model(
         self, value: DiscordObject, context: bevy.Context, cache: CacheManager
-    ) -> typing.Optional[Model]:
+    ) -> typing.Optional[models.Model]:
         if self.model_type.__dippy_cache_type__:
             return self._get_model_from_cache(value, cache)
         return context.build(self.model_type, value)
