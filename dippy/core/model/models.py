@@ -96,7 +96,7 @@ class Model(bevy.Injectable):
             elif not field.key_name:
                 field.key_name = name
 
-            field.annotation = annotations[name]
+            field.raw_annotation = annotations[name]
             fields_[name] = field
             setattr(cls, name, field)
 

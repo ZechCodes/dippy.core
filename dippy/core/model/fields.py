@@ -1,8 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass, field as dataclass_field
+from dippy.core.cache.manager import CacheManager, DiscordObject
+from dippy.core.enums.enums import Enum
 from dippy.core.model.annotions import AnnotationWrapperGetter
 from dippy.core.model.converters import find_converter, CONVERTER
-from dippy.core.cache.manager import CacheManager, DiscordObject
 from dippy.core.model.validators import find_validator, VALIDATOR
 import bevy
 import dippy.core.model.models as models
@@ -27,7 +28,7 @@ class Field:
     assignable: bool = False
     converter: typing.Optional[CONVERTER] = None
     validator: typing.Optional[VALIDATOR] = None
-    annotation: AnnotationWrapperGetter = dataclass_field(init=False)
+    raw_annotation: AnnotationWrapperGetter = dataclass_field(init=False)
 
     def __get__(self, model: typing.Optional[models.Model], cls: typing.Type[models.Model]) -> typing.Any:
         if not model:
@@ -56,10 +57,14 @@ class Field:
         model.__dippy_state__[self.key_name] = self._apply_converters(value)
 
     @property
+    def annotation(self) -> typing.Any:
+        return self.raw_annotation.get()
+
+    @property
     def model_type(self) -> typing.Optional[typing.Type[models.Model]]:
         """Parses the models type from the annotation. This will look at the first arg of union and container types when
         present. If no models type is found it will return None."""
-        raw_annotation = self.annotation.get()
+        raw_annotation = self.annotation
         annotation = typing.get_origin(raw_annotation) or raw_annotation
         if safe_is_subclass(annotation, models.Model):
             return annotation
@@ -101,6 +106,7 @@ class Field:
         value = self._apply_type_converter(value)
         if self.converter:
             value = self.converter(value)
+        value = self._build_enum_type(value)
         return value
 
     def _apply_type_converter(self, value: typing.Any) -> typing.Any:
@@ -110,6 +116,21 @@ class Field:
             value = converter(value)
 
         return value
+
+    def _build_enum_type(self, value: typing.Any) -> typing.Any:
+        raw_annotation = self.annotation
+        annotation = typing.get_origin(raw_annotation) or raw_annotation
+        if isinstance(annotation, type) and isinstance(value, str):
+            args = typing.get_args(raw_annotation)
+            if args:
+                annotation = typing.get_origin(args[0]) or args[0]
+
+            if isinstance(annotation, type) and issubclass(annotation, Enum):
+                return annotation.safe_get(value)
+
+        return value
+
+
 
     def _build_model(self, value: DiscordObject, context: bevy.Context, cache: CacheManager) -> typing.Optional[Model]:
         if self.model_type.__dippy_cache_type__:
@@ -122,7 +143,7 @@ class Field:
         return self.container_type(self._build_model(item, context, cache) for item in value)
 
     def _get_annotation_types(self) -> tuple[typing.Type, ...]:
-        annotation = self.annotation.get()
+        annotation = self.annotation
         types = (typing.cast(typing.Type, annotation),)
         if typing.get_origin(annotation) is typing.Union:
             types = typing.get_args(annotation)
