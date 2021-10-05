@@ -2,7 +2,7 @@ from attr import attrs, attrib
 from dippy.core.api.request import json_arg
 from dippy.core.datetime_helpers import datetime, from_timestamp
 from dippy.core.enums.messages import EmbedType, AllowedMentionsType
-from dippy.core.api.models.base_model import BaseModel
+from dippy.core.api.models.base_model import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
@@ -134,5 +134,5 @@ class AllowedMentions:
     replied_user: bool
 
 
-class Message(BaseModel):
+class Message(Model):
     ...
