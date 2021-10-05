@@ -11,7 +11,7 @@ from dippy.core.enums.guilds import (
     TwoFactorAuthentication,
     VerificationLevel,
 )
-from dippy.core.api.models.base_model import BaseModel
+from dippy.core.api.models.base_model import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 import dippy.core.api.models.channels as _channels
@@ -39,7 +39,7 @@ class VoiceState:
     request_to_speak_timestamp: Optional[datetime]
 
 
-class Member(BaseModel):
+class Member(Model):
     user: Optional[_users.User]
     nick: Optional[str]
     roles: list[Snowflake]
@@ -57,7 +57,7 @@ class WelcomeScreen:
     welcome_channels: list[WelcomeScreenChannel]
 
 
-class Guild(BaseModel):
+class Guild(Model):
     id: Snowflake
     name: str
     icon: Optional[str]

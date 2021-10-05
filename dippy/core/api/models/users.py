@@ -1,9 +1,9 @@
-from dippy.core.api.models.base_model import BaseModel
+from dippy.core.api.models.base_model import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
 
-class User(BaseModel):
+class User(Model):
     id: Snowflake
     username: str
     discriminator: str

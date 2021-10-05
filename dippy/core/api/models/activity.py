@@ -1,13 +1,12 @@
-from __future__ import annotations
-from attr import attrs
+from __future__ import annotations as _
 from dippy.core.datetime_helpers import datetime
 from dippy.core.enums.activity import ActivityFlag, ActivityType
+from dippy.core.model.models import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
 
-@attrs(auto_attribs=True)
-class Activity:
+class Activity(Model):
     name: str
     type: ActivityType
     url: Optional[str]
@@ -25,40 +24,34 @@ class Activity:
     buttons: Optional[list[ActivityButton]]
 
 
-@attrs(auto_attribs=True)
-class ActivityAssets:
+class ActivityAssets(Model):
     large_image: Optional[str]
     large_text: Optional[str]
     small_image: Optional[str]
 
 
-@attrs(auto_attribs=True)
-class ActivityButton:
+class ActivityButton(Model):
     label: str
     url: str
 
 
-@attrs(auto_attribs=True)
-class ActivityEmoji:
+class ActivityEmoji(Model):
     name: str
     id: Optional[Snowflake]
     animated: Optional[bool]
 
 
-@attrs(auto_attribs=True)
-class ActivityParty:
+class ActivityParty(Model):
     id: Optional[str]
     size: Optional[list[int]]
 
 
-@attrs(auto_attribs=True)
-class ActivitySecrets:
+class ActivitySecrets(Model):
     join: Optional[str]
     spectate: Optional[str]
     match: Optional[str]
 
 
-@attrs(auto_attribs=True)
-class ActivityTimestamp:
+class ActivityTimestamp(Model):
     start: Optional[datetime]
     end: Optional[datetime]
