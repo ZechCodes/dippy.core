@@ -1,5 +1,4 @@
-from __future__ import annotations
-from attr import attrs
+from __future__ import annotations as _
 from dippy.core.datetime_helpers import datetime
 from dippy.core.enums.guilds import (
     ExplicitContentFilterLevel,
@@ -11,7 +10,7 @@ from dippy.core.enums.guilds import (
     TwoFactorAuthentication,
     VerificationLevel,
 )
-from dippy.core.api.models.base_model import Model
+from dippy.core.model.models import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 import dippy.core.api.models.channels as _channels
@@ -22,8 +21,7 @@ import dippy.core.api.models.stickers as _stickers
 import dippy.core.api.models.users as _users
 
 
-@attrs(auto_attribs=True)
-class VoiceState:
+class VoiceState(Model):
     guild_id: Optional[Snowflake]
     channel_id: Optional[Snowflake]
     user_id: Snowflake
@@ -51,8 +49,7 @@ class Member(Model):
     permissions: Optional[str]
 
 
-@attrs(auto_attribs=True)
-class WelcomeScreen:
+class WelcomeScreen(Model):
     description: Optional[str]
     welcome_channels: list[WelcomeScreenChannel]
 
@@ -110,8 +107,7 @@ class Guild(Model):
     stickers: Optional[list[_stickers.Sticker]]
 
 
-@attrs(auto_attribs=True)
-class WelcomeScreenChannel:
+class WelcomeScreenChannel(Model):
     channel_id: Snowflake
     description: str
     emoji_id: Optional[Snowflake]
