@@ -63,17 +63,13 @@ class EmbedAuthor(Model):
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-    name: Optional[str] = Field(
-        validator=lambda inst, attr, value: len(value) <= 256
-    )
+    name: Optional[str] = Field(validator=lambda inst, attr, value: len(value) <= 256)
 
 
 class EmbedFooter(Model):
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-    text: Optional[str] = Field(
-        validator=lambda inst, attr, value: len(value) <= 2048
-    )
+    text: Optional[str] = Field(validator=lambda inst, attr, value: len(value) <= 2048)
 
 
 class EmbedField(Model):
@@ -92,9 +88,7 @@ class Embed(Model):
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
     timestamp: Optional[datetime] = Field(converter=from_timestamp)
-    title: Optional[str] = Field(
-        validator=lambda inst, attr, value: len(value) <= 256
-    )
+    title: Optional[str] = Field(validator=lambda inst, attr, value: len(value) <= 256)
     description: Optional[str] = Field(
         validator=lambda inst, attr, value: len(value) <= 4096
     )
