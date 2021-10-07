@@ -1,4 +1,4 @@
-from __future__ import annotations as _
+from __future__ import annotations
 from dippy.core.enums.stickers import StickerType, StickerFormatType
 from dippy.core.api.models.users import User
 from dippy.core.model.models import Model

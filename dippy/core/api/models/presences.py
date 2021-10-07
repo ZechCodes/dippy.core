@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 from dippy.core.enums.users import Status
 from dippy.core.api.models.activity import Activity

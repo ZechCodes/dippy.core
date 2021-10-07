@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dippy.core.api.models.emoji import Emoji
 from dippy.core.datetime_helpers import datetime, from_timestamp
 from dippy.core.enums.messages import EmbedType, AllowedMentionsType

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, Any
 from dippy.core.api.models.base_model import Model
 from dippy.core.api.models.channels import Channel

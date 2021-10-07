@@ -1,4 +1,4 @@
-from __future__ import annotations as _
+from __future__ import annotations
 from typing import Optional
 from dippy.core.api.models.guilds import Guild
 from dippy.core.api.models.users import User
