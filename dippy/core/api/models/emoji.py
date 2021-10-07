@@ -1,11 +1,10 @@
-from attr import attrs
 from dippy.core.api.models.users import User
+from dippy.core.model.models import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
 
 
-@attrs(auto_attribs=True)
-class Emoji:
+class Emoji(Model):
     id: Optional[Snowflake]
     name: Optional[str]
     roles: Optional[list[Snowflake]]
