@@ -1,3 +1,4 @@
+from __future__ import annotations
 from attr import attrs
 from typing import Optional
 from dippy.core.enums.permissions import PermissionType

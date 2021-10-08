@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dippy.core.api.models.base_model import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional

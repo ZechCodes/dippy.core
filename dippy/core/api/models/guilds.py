@@ -1,4 +1,4 @@
-from __future__ import annotations as _
+from __future__ import annotations
 from dippy.core.datetime_helpers import datetime
 from dippy.core.enums.guilds import (
     ExplicitContentFilterLevel,
