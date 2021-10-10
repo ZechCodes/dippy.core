@@ -201,11 +201,3 @@ class Field(MetadataDescriptorMixin):
 
         else:
             return False
-
-
-class JSONField(Field):
-    ...
-
-
-class QueryArgField(Field):
-    ...
