@@ -5,12 +5,13 @@ from dippy.core.enums.enums import Enum
 from dippy.core.model.annotions import AnnotationWrapperGetter
 from dippy.core.model.converters import find_converter, CONVERTER
 from dippy.core.model.validators import find_validator, VALIDATOR
+from dippy.core.sentinel import Sentinel
 import bevy
 import dippy.core.model.models as models
 import typing
 
 
-NOTSET = type("NOTSET", (object,), {"__repr__": lambda s: "NOTSET"})()
+NOTSET = Sentinel("NOTSET")
 
 
 def safe_is_subclass(cls, base_type) -> bool:
