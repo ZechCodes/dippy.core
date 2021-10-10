@@ -4,6 +4,7 @@ from dippy.core.cache.manager import CacheManager, DiscordObject
 from dippy.core.enums.enums import Enum
 from dippy.core.model.annotions import AnnotationWrapperGetter
 from dippy.core.model.converters import find_converter, CONVERTER
+from dippy.core.model.metadata import MetadataDescriptorMixin
 from dippy.core.model.validators import find_validator, VALIDATOR
 from dippy.core.sentinel import Sentinel
 import bevy
@@ -22,7 +23,7 @@ def safe_is_subclass(cls, base_type) -> bool:
 
 
 @dataclass
-class Field:
+class Field(MetadataDescriptorMixin):
     default: typing.Any = NOTSET
     index: bool = False
     key_name: typing.Optional[str] = None
