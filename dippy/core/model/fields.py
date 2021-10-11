@@ -30,6 +30,7 @@ class Field(MetadataDescriptorMixin):
     assignable: bool = False
     converter: typing.Optional[CONVERTER] = None
     validator: typing.Optional[VALIDATOR] = None
+    factory: typing.Optional[typing.Callable[[], typing.Any]] = None
     raw_annotation: AnnotationWrapperGetter = dataclass_field(init=False)
 
     def __get__(
@@ -40,7 +41,13 @@ class Field(MetadataDescriptorMixin):
 
         value = model.__dippy_state__.get(self.key_name, NOTSET)
         if value is NOTSET:
-            return None if self.default is NOTSET else self.default
+            if self.default is not NOTSET:
+                return self.default
+
+            if self.factory:
+                return self.factory()
+
+            return None
 
         value = self._apply_converters(value)
         if self.model_type:
