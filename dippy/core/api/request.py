@@ -46,3 +46,6 @@ class RequestModel(_DataModel):
     def url_args(self: _MetadataProtocol) -> dict[str, _Any]:
         return self.__dippy_metadata__.get_for(self, URLArgField)
 
+    def url(self, api_version: str) -> str:
+        url = f"https://discord.com/api/v{api_version}/{self.endpoint.lstrip('/')}"
+        return url.format(**self.url_args)
