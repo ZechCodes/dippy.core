@@ -1,37 +1,35 @@
 from __future__ import annotations
 from aiohttp import ClientSession
 from asyncio import AbstractEventLoop, get_running_loop
-from attr import asdict, attrs, attrib, setters
-from bevy import Context, dependencies, Inject
-from dippy.core.api.request import BaseRequest
+from bevy import Context, Inject
+from dippy.core.api.request import RequestModel
 from dippy.core.cache.manager import CacheManager
-from dippy.core.api.models import BaseModel
-from dippy.core.not_set import NOT_SET
+from dippy.core.model.data_models import DataModel
+from dippy.core.model.fields import Field
+from dippy.core.model.models import Model
 from dippy.core.validators import token_validator
 from typing import Any, Optional, Type, Union
 import urllib.parse
 
 
-@attrs(auto_attribs=True, on_setattr=setters.frozen)
-class ClientProxy:
+class ClientProxy(DataModel):
     proxy: Optional[str] = None
     proxy_auth: Optional[object] = None
     proxy_headers: Optional[dict[str, Any]] = None
 
 
-@attrs(on_setattr=setters.frozen)
-@dependencies
-class DiscordRestClient:
+class DiscordRestClient(DataModel):
     __api_version__ = 9
-    cache: Inject[CacheManager]
+    cache: CacheManager = Inject(CacheManager)
 
-    token: str = attrib(converter=str.strip, default="", validator=token_validator)
-    client_name: str = attrib(converter=str.strip, default="dippy.core", kw_only=True)
-    loop: AbstractEventLoop = attrib(factory=get_running_loop, kw_only=True)
-    headers: dict[str, Any] = attrib(factory=dict, kw_only=True)
-    proxy: Optional[ClientProxy] = attrib(factory=ClientProxy, kw_only=True)
+    token: str = Field(converter=str.strip, default="", validator=token_validator)
+    client_name: str = Field(converter=str.strip, default="dippy.core", kw_only=True)
+    loop: AbstractEventLoop = Field(factory=get_running_loop, kw_only=True)
+    headers: dict[str, Any] = Field(factory=dict, kw_only=True)
+    proxy: Optional[ClientProxy] = Field(factory=ClientProxy, kw_only=True)
 
-    def __attrs_post_init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._session: Optional[ClientSession] = None
 
     async def __aenter__(self) -> DiscordRestClient:
@@ -41,19 +39,15 @@ class DiscordRestClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._session.close()
 
-    def create_model(self, request: BaseRequest, response: dict[str, Any]):
-        model = getattr(request, "models", None)
-        if not model:
-            return response
+    def create_model(self, request: RequestModel, response: dict[str, Any]):
+        if isinstance(request.model, type) and issubclass(request.model, Model):
+            return self._create_with_cache(request.model, response)
 
-        if issubclass(model, BaseModel):
-            return self._create_with_cache(model, request, response)
-
-        return model(**response)
+        return request.model(**response)
 
     async def request(
-        self, request: BaseRequest
-    ) -> Union[BaseModel, Type, dict[str, Any]]:
+        self, request: RequestModel
+    ) -> Union[Model, Type, dict[str, Any]]:
         response = await self._make_request(
             request.method,
             self._build_url(request),
@@ -62,7 +56,7 @@ class DiscordRestClient:
         )
         return self.create_model(request, response)
 
-    def _build_url(self, request: BaseRequest) -> str:
+    def _build_url(self, request: RequestModel) -> str:
         url = f"https://discord.com/api/v{self.__api_version__}/{request.endpoint.lstrip('/')}"
         return url.format(**self._get_url_args(request))
 
