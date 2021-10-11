@@ -28,6 +28,7 @@ class Field(MetadataDescriptorMixin):
     index: bool = False
     key_name: typing.Optional[str] = None
     assignable: bool = False
+    kw_only: bool = False
     converter: typing.Optional[CONVERTER] = None
     validator: typing.Optional[VALIDATOR] = None
     factory: typing.Optional[typing.Callable[[], typing.Any]] = None
