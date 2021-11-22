@@ -1,28 +1,23 @@
 from __future__ import annotations
-from dippy.core.api.request import request_model, query_arg, url_arg
+from dippy.core.api.request import RequestModel, QueryArgField, URLArgField
 from dippy.core.api.models.guilds import Guild, Member
 from dippy.core.snowflake import Snowflake
 
 
-@request_model
-class GetGuildMember:
+class GetGuildMember(RequestModel):
     endpoint = "/guilds/{guild_id}/members/{user_id}"
     method = "GET"
     model = Member
 
-    guild_id: Snowflake = url_arg()
-    user_id: Snowflake = url_arg()
-
-    def get_index(self, request: GetGuildMember) -> tuple[Snowflake, Snowflake]:
-        return self.guild_id, Snowflake(request["user"]["id"])
+    guild_id: Snowflake = URLArgField(index=True)
+    user_id: Snowflake = URLArgField(index=True)
 
 
-@request_model
-class GetGuild:
-    endpoint = "/guilds/{guild_id}"
+class GetGuild(RequestModel):
+    endpoint = "/guilds/{id}"
     method = "GET"
     model = Guild
 
-    guild_id: Snowflake = url_arg()
+    id: Snowflake = URLArgField(index=True, key_name="guild_id")
 
-    with_counts: bool = query_arg()
+    with_counts: bool = QueryArgField()

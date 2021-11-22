@@ -1,13 +1,12 @@
 from __future__ import annotations
-from dippy.core.api.request import request_model, url_arg
+from dippy.core.api.request import RequestModel, URLArgField
 from dippy.core.api.models.users import User
 from dippy.core.snowflake import Snowflake
 
 
-@request_model
-class GetUser:
-    endpoint = "/users/{user_id}"
+class GetUser(RequestModel):
+    endpoint = "/users/{id}"
     method = "GET"
     model = User
 
-    user_id: Snowflake = url_arg()
+    id: Snowflake = URLArgField(index=True, key_name="user_id")
