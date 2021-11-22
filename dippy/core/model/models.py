@@ -94,6 +94,9 @@ class Model(bevy.Injectable):
         fields_ = {}
         annotations = AnnotationWrapper(cls)
         for name, annotation in cls.__annotations__.items():
+            if name.startswith("__"):
+                continue
+
             field: typing.Union[fields.Field, typing.Any] = getattr(cls, name, None)
             if not field or not isinstance(field, fields.Field):
                 field = fields.Field(
