@@ -34,8 +34,12 @@ class DataModel(Model, MetadataProtocol):
             elif not field.kw_only and allow_positional and index < len(args):
                 value = args[index]
                 index += 1
-            elif field.default is NOTSET:
+            elif field.default is not NOTSET:
                 value = field.default
+            elif field.factory:
+                value = field.factory()
+            elif field.is_optional:
+                continue
             else:
                 raise TypeError(
                     f"{type(self).__qualname__} missing 1 required positional argument: '{name}'\n    {args=}\n    "
