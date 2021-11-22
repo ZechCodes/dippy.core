@@ -38,7 +38,8 @@ class DataModel(Model, MetadataProtocol):
                 value = field.default
             else:
                 raise TypeError(
-                    f"__init__() missing 1 required positional argument: '{name}'"
+                    f"{type(self).__qualname__} missing 1 required positional argument: '{name}'\n    {args=}\n    "
+                    f"{kwargs=}\n    {type(self)=}\n    {field=}\n    {allow_positional=}\n    {index=}"
                 )
 
             values[name] = value
