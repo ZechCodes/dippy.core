@@ -4,7 +4,7 @@ from dippy.core.model.data_models import DataModel as _DataModel
 from dippy.core.model.models import Model as _Model
 from dippy.core.model.metadata import MetadataProtocol as _MetadataProtocol
 from dippy.core.sentinel import Sentinel as _Sentinel
-from typing import Any as _Any, Optional as _Optional
+from typing import Any as _Any, Optional as _Optional, Union as _Union
 
 
 NOTSET = _Sentinel("NOTSET")
@@ -46,6 +46,6 @@ class RequestModel(_DataModel):
     def url_args(self: _MetadataProtocol) -> dict[str, _Any]:
         return self.__dippy_metadata__.get_for(self, URLArgField)
 
-    def url(self, api_version: str) -> str:
+    def get_url(self, api_version: _Union[str, int]) -> str:
         url = f"https://discord.com/api/v{api_version}/{self.endpoint.lstrip('/')}"
         return url.format(**self.url_args)
