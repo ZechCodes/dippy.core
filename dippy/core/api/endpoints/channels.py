@@ -1,136 +1,124 @@
 from __future__ import annotations
 from typing import Optional
-from dippy.core.api.request import request_model, query_arg, url_arg
+from dippy.core.api.request import RequestModel, QueryArgField, URLArgField
 from dippy.core.snowflake import Snowflake
 from dippy.core.api.models.channels import Channel
 
 
-@request_model
-class GetChannelRequest:
+class GetChannelRequest(RequestModel):
     endpoint = "/channels/{channel_id}"
     method = "GET"
     model: Channel
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
 
 # TODO: Implement PATCH /channels/{channel.id} | Modify Channel Endpoint
 #  Requires checks if a channel is a thread/DM/channel
 
 
-@request_model
-class DeleteChannelRequest:
+class DeleteChannelRequest(RequestModel):
     """Deletes a channel or closes a private message."""
 
     endpoint = "/channels/{channel_id}"
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
 
-@request_model
-class GetChannelMessagesRequest:
+class GetChannelMessagesRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages"
     method = "GET"
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
-    around: Optional[Snowflake] = query_arg()
-    before: Optional[Snowflake] = query_arg()
-    after: Optional[Snowflake] = query_arg()
-    limit: Optional[int] = query_arg()
+    around: Optional[Snowflake] = QueryArgField()
+    before: Optional[Snowflake] = QueryArgField()
+    after: Optional[Snowflake] = QueryArgField()
+    limit: Optional[int] = QueryArgField()
 
 
-@request_model
-class GetChannelMessageRequest:
+class GetChannelMessageRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}"
     method = "GET"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
 
 
-@request_model
-class CreateMessageRequest:
+class CreateMessageRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages"
     method = "POST"
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
     # TODO: Implement https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
 
 
-@request_model
-class CreateReactionRequest:
+class CreateReactionRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
     method = "PUT"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
-    emoji: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
+    emoji: Snowflake = URLArgField()
 
 
-@request_model
-class DeleteOwnReactionRequest:
+class DeleteOwnReactionRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
-    emoji: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
+    emoji: Snowflake = URLArgField()
 
 
-@request_model
-class DeleteUserReactionRequest:
+class DeleteUserReactionRequest(RequestModel):
     endpoint = (
         "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}"
     )
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
-    emoji: Snowflake = url_arg()
-    user_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
+    emoji: Snowflake = URLArgField()
+    user_id: Snowflake = URLArgField()
 
 
-@request_model
-class GetReactionsRequest:
+class GetReactionsRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
-    emoji: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
+    emoji: Snowflake = URLArgField()
 
-    after: Optional[Snowflake] = query_arg()
-    limit: Optional[int] = query_arg()
+    after: Optional[Snowflake] = QueryArgField()
+    limit: Optional[int] = QueryArgField()
 
 
-@request_model
-class DeleteAllReactionsRequest:
+class DeleteAllReactionsRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}/reactions"
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
 
 
-@request_model
-class DeleteAllReactionsForEmojiRequest:
+class DeleteAllReactionsForEmojiRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
     method = "DELETE"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
-    emoji: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
+    emoji: Snowflake = URLArgField()
 
 
-@request_model
-class EditMessageRequest:
+class EditMessageRequest(RequestModel):
     endpoint = "/channels/{channel_id}/messages/{message_id}"
     method = "PATCH"
 
-    channel_id: Snowflake = url_arg()
-    message_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
+    message_id: Snowflake = URLArgField()
 
     # TODO: Implement https://discord.com/developers/docs/resources/channel#edit-message-jsonform-params

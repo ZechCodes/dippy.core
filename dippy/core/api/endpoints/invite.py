@@ -1,22 +1,20 @@
 from __future__ import annotations
 from typing import Optional
-from dippy.core.api.request import url_arg, request_model, query_arg
+from dippy.core.api.request import RequestModel, QueryArgField, URLArgField
 
 
-@request_model
-class GetInvite:
+class GetInvite(RequestModel):
     endpoint = "/invites/{invite_code}"
     method = "GET"
 
-    invite_code: str = url_arg()
+    invite_code: str = URLArgField()
 
-    with_counts: Optional[bool] = query_arg()
-    with_expiration: Optional[bool] = query_arg()
+    with_counts: Optional[bool] = QueryArgField()
+    with_expiration: Optional[bool] = QueryArgField()
 
 
-@request_model
-class DeleteInvite:
+class DeleteInvite(URLArgField):
     endpoint = "/invites/{invite_code}"
     method = "DELETE"
 
-    invite_code: str = url_arg()
+    invite_code: str = URLArgField()

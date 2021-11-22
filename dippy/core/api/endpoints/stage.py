@@ -1,41 +1,37 @@
 from __future__ import annotations
 from typing import Optional
-from dippy.core.api.request import request_model, json_arg, url_arg
+from dippy.core.api.request import RequestModel, URLArgField, JSONArgField
 from dippy.core.snowflake import Snowflake
 
 
-@request_model
-class CreateStageInstance:
+class CreateStageInstance(RequestModel):
     endpoint = "/stage-instances"
     method = "POST"
 
-    channel_id: Snowflake = json_arg()
-    topic: str = json_arg()
-    privacy_level: Optional[int] = json_arg()
+    channel_id: Snowflake = JSONArgField()
+    topic: str = JSONArgField()
+    privacy_level: Optional[int] = JSONArgField()
 
 
-@request_model
-class GetStageInstance:
+class GetStageInstance(RequestModel):
     endpoint = "/stage-instances/{channel_id}"
     method = "GET"
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
 
-@request_model
-class ModifyStageInstance:
+class ModifyStageInstance(RequestModel):
     endpoint = "/stage-instances/{channel_id}"
     method = "GET"
 
-    channel_id: Snowflake = url_arg()
+    channel_id: Snowflake = URLArgField()
 
-    topic: Optional[str] = json_arg()
-    privacy_level: Optional[int] = json_arg()
+    topic: Optional[str] = JSONArgField()
+    privacy_level: Optional[int] = JSONArgField()
 
 
-@request_model
-class DeleteStageInstance:
+class DeleteStageInstance(RequestModel):
     endpoint = "/stage-instances/{channel_id}"
     method = "DELETE"
 
-    channel_id = url_arg()
+    channel_id = URLArgField()
