@@ -2,6 +2,7 @@ from __future__ import annotations
 from aiohttp import ClientSession
 from asyncio import AbstractEventLoop, get_running_loop
 from bevy import Context, Inject
+from dataclasses import asdict, dataclass
 from dippy.core.api.request import RequestModel
 from dippy.core.cache.manager import CacheManager
 from dippy.core.model.data_models import DataModel
@@ -9,10 +10,10 @@ from dippy.core.model.fields import Field
 from dippy.core.model.models import Model
 from dippy.core.validators import token_validator
 from typing import Any, Optional, Type, Union
-import urllib.parse
 
 
-class ClientProxy(DataModel):
+@dataclass
+class ClientProxy:
     proxy: Optional[str] = None
     proxy_auth: Optional[object] = None
     proxy_headers: Optional[dict[str, Any]] = None
@@ -43,22 +44,13 @@ class DiscordRestClient(DataModel):
         if isinstance(request.model, type) and issubclass(request.model, Model):
             return self._create_with_cache(request.model, response)
 
-        return request.model(**response)
+        return request.model(**response) if request.model else response
 
     async def request(
         self, request: RequestModel
     ) -> Union[Model, Type, dict[str, Any]]:
-        response = await self._make_request(
-            request.method,
-            self._build_url(request),
-            self._get_query_args(request),
-            self._get_json_args(request),
-        )
+        response = await self._make_request(request)
         return self.create_model(request, response)
-
-    def _build_url(self, request: RequestModel) -> str:
-        url = f"https://discord.com/api/v{self.__api_version__}/{request.endpoint.lstrip('/')}"
-        return url.format(**self._get_url_args(request))
 
     def _create_user_agent(self):
         from dippy.core.version import (
@@ -81,53 +73,30 @@ class DiscordRestClient(DataModel):
         )
         return ClientSession(headers=headers)
 
-    def _create_with_cache(self, model, request: BaseRequest, response: dict[str, Any]):
-        index = (
-            request.get_index(response)
-            if hasattr(request, "get_index")
-            else (response["id"],)
-        )
+    def _create_with_cache(
+        self, model, request: RequestModel, response: dict[str, Any]
+    ):
+        index = request.__dippy_index__ or (response["id"],)
         self.cache.update(model, *index, data=response)
         return self.cache.get(model, *index)
 
-    def _get_json_args(self, request: BaseRequest) -> dict[str, Any]:
-        return asdict(
-            request,
-            filter=lambda attr, value: (
-                attr.metadata.get("arg_type") == "json" and value is not NOT_SET
-            ),
-            value_serializer=lambda inst, attr, value: str(value),
+    async def _make_request(self, request: RequestModel) -> dict[str, Any]:
+        kwargs = asdict(self.proxy)
+        if request.query_args:
+            kwargs["params"] = {
+                key: value
+                for key, value in request.query_args.items()
+                if value is not None
+            }
+        if request.json_args:
+            kwargs["json"] = {
+                key: value
+                for key, value in request.json_args.items()
+                if value is not None
+            }
+        response = await self._session.request(
+            request.method, request.get_url(self.__api_version__), **kwargs
         )
-
-    def _get_query_args(self, request: BaseRequest) -> dict[str, Any]:
-        return asdict(
-            request,
-            filter=lambda attr, value: (
-                attr.metadata.get("arg_type") == "query" and value is not NOT_SET
-            ),
-            value_serializer=lambda inst, attr, value: str(value),
-        )
-
-    def _get_url_args(self, request: BaseRequest) -> dict[str, Any]:
-        return asdict(
-            request,
-            filter=lambda attr, value: attr.metadata.get("arg_type") == "url",
-            value_serializer=lambda inst, attr, value: urllib.parse.unquote(str(value)),
-        )
-
-    async def _make_request(
-        self,
-        method: str,
-        url: str,
-        query_args: Optional[dict] = None,
-        json_args: Optional[dict] = None,
-    ) -> dict[str, Any]:
-        kwargs = {**asdict(self.proxy)}
-        if query_args:
-            kwargs["params"] = query_args
-        if json_args:
-            kwargs["json"] = json_args
-        response = await self._session.request(method, url, **kwargs)
         json = await response.json()
         return json
 
