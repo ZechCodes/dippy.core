@@ -29,7 +29,7 @@ class URLArgField(_Field):
     ...
 
 
-class RequestModel(_DataModel, _T):
+class RequestModel(_DataModel, _Generic[_T]):
     endpoint: str
     method: str
     model: _Optional[_T] = None
