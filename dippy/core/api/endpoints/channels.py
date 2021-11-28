@@ -1,8 +1,15 @@
 from __future__ import annotations
 from typing import Optional
+from dippy.core.model.partials import Partial
 from dippy.core.api.request import RequestModel, QueryArgField, URLArgField
 from dippy.core.snowflake import Snowflake
 from dippy.core.api.models.channels import Channel
+from dippy.core.api.models.messages import (
+    AllowedMentions,
+    Component,
+    Embed,
+    MessageReference,
+)
 
 
 class GetChannelRequest(RequestModel):
@@ -46,13 +53,27 @@ class GetChannelMessageRequest(RequestModel):
     message_id: Snowflake = URLArgField()
 
 
+class AttachmentPartial(Partial):
+    id: Snowflake
+
+
 class CreateMessageRequest(RequestModel):
-    endpoint = "/channels/{channel_id}/messages"
+    endpoint = "/channels/{id}/messages"
     method = "POST"
 
-    channel_id: Snowflake = URLArgField()
+    id: Snowflake = URLArgField()
 
-    # TODO: Implement https://discord.com/developers/docs/resources/channel#create-message-jsonform-params
+    content: Optional[str] = QueryArgField(kw_only=True)
+    embeds: Optional[list[Embed]] = QueryArgField(kw_only=True)
+    sticker_ids: Optional[list[Snowflake]] = QueryArgField(kw_only=True)
+    files: Optional[list[bytes]] = QueryArgField(kw_only=True)
+
+    tts: Optional[bool] = QueryArgField(kw_only=True)
+    allowed_mentions: Optional[AllowedMentions] = QueryArgField(kw_only=True)
+    message_reference: Optional[MessageReference] = QueryArgField(kw_only=True)
+    components: Optional[list[Component]] = QueryArgField(kw_only=True)
+    payload_json: Optional[str] = QueryArgField(kw_only=True)
+    attachments: Optional[AttachmentPartial] = QueryArgField(kw_only=True)
 
 
 class CreateReactionRequest(RequestModel):
