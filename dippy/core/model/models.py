@@ -26,7 +26,7 @@ class Model(bevy.Injectable):
     The underlying state is accessible through the __dippy_state__ property."""
 
     __slots__ = ["_state", "_snapshot"]
-    cache: bevy.Inject[CacheManager]
+    cache: bevy.Inject[CacheManager] = bevy.Inject(CacheManager)
     __dippy_index_fields__: tuple[str, ...] = tuple()
     __dippy_cache_type__: typing.Optional[str] = None
 
