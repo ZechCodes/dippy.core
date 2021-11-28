@@ -82,7 +82,7 @@ class DiscordRestClient(DataModel):
         kwargs = asdict(self.proxy)
         if request.query_args:
             kwargs["params"] = {
-                key: value
+                key: str(value) if isinstance(value, bool) else value
                 for key, value in request.query_args.items()
                 if value is not None
             }
