@@ -104,7 +104,7 @@ class Field(MetadataDescriptorMixin):
         """Parses the container type from the annotation. If no container type is found it will return None."""
         annotation = typing.get_origin(self.annotation) or self.annotation
         if annotation is typing.Union:
-            args = typing.get_args(annotation)
+            args = typing.get_args(self.annotation)
             annotation = typing.get_origin(args[0]) or args[0]
 
         if safe_is_subclass(annotation, typing.Iterable):
