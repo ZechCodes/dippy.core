@@ -32,6 +32,10 @@ poetry install
 ```
 That will create a virtual environment with all of the necessary packages.
 
+## Usage
+
+Check out [example_usage.py](example_usage.py) to see how to use the package.
+
 ## Bug Reports
 
 As this is a hardcore alpha stage, bug reports should be limited to a quick “it didn’t work” on Discord or in an issue comment. If there’s something larger that is more than just things being broken in an alpha project, go ahead and create an issue and give it the “bug” label. Be sure to include some code that will cause the issue so we can replicate it.
@@ -40,4 +44,4 @@ As this is a hardcore alpha stage, bug reports should be limited to a quick “i
 
 [Zech (Owner)](https://github.com/ZechCodes)
 [aryan-debug](https://github.com/aryan-debug)
-[wake-code](https://github.com/wake-code)
+[burning-eggs](https://github.com/burning-eggs)
