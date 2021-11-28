@@ -9,4 +9,4 @@ class GetUser(RequestModel):
     method = "GET"
     model = User
 
-    id: Snowflake = URLArgField(index=True, key_name="user_id")
+    id: Snowflake = URLArgField(index=True)
