@@ -9,7 +9,10 @@ from dippy.core.model.data_models import DataModel
 from dippy.core.model.fields import Field
 from dippy.core.model.models import Model
 from dippy.core.validators import token_validator
-from typing import Any, Optional, Type, Union
+from typing import Any, Optional, Type, TypeVar, Union
+
+
+T = TypeVar("T", bound=Model)
 
 
 @dataclass
@@ -40,15 +43,13 @@ class DiscordRestClient(DataModel):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._session.close()
 
-    def create_model(self, request: RequestModel, response: dict[str, Any]):
+    def create_model(self, request: RequestModel[T], response: dict[str, Any]) -> T:
         if isinstance(request.model, type) and issubclass(request.model, Model):
-            return self._create_with_cache(request.model, response)
+            return self._create_with_cache(request, response)
 
         return request.model(**response) if request.model else response
 
-    async def request(
-        self, request: RequestModel
-    ) -> Union[Model, Type, dict[str, Any]]:
+    async def request(self, request: RequestModel[T]) -> T:
         response = await self._make_request(request)
         return self.create_model(request, response)
 
@@ -73,14 +74,11 @@ class DiscordRestClient(DataModel):
         )
         return ClientSession(headers=headers)
 
-    def _create_with_cache(
-        self, model, request: RequestModel, response: dict[str, Any]
-    ):
-        index = request.__dippy_index__ or (response["id"],)
-        self.cache.update(model, *index, data=response)
-        return self.cache.get(model, *index)
+    def _create_with_cache(self, request: RequestModel, response: dict[str, Any]):
+        self.cache.update(request.model, response, *request.__dippy_index__)
+        return self.cache.get(request.model, *request.__dippy_index__)
 
-    async def _make_request(self, request: RequestModel) -> dict[str, Any]:
+    async def _make_request(self, request: RequestModel[T]) -> dict[str, Any]:
         kwargs = asdict(self.proxy)
         if request.query_args:
             kwargs["params"] = {

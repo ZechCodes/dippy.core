@@ -5,6 +5,7 @@ from dippy.core.api.endpoints.guilds import GetGuild, GetGuildMember
 from dippy.core.api.endpoints.users import GetUser
 from dippy.core.cache.manager import CacheManager
 from dippy.core.api.models.guilds import Member
+from dippy.core.api.models.users import User
 from dippy.core.snowflake import Snowflake
 from dippy.core.api.request import (
     RequestModel,
@@ -48,14 +49,10 @@ async def test_rest_client():
 
 
 @mark.asyncio
-async def test_get_member():
+async def test_get_user():
     async with DiscordRestClient(getenv("DISCORD_TOKEN", "")) as client:
-        resp = await client.request(
-            GetGuildMember(
-                Snowflake(getenv("GUILD_ID", 0)), Snowflake(getenv("USER_ID", 0))
-            )
-        )
-        assert isinstance(resp, Member)
+        resp = await client.request(GetUser(int(getenv("USER_ID"))))
+        assert isinstance(resp, User)
 
 
 @mark.asyncio

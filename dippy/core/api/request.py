@@ -4,9 +4,16 @@ from dippy.core.model.data_models import DataModel as _DataModel
 from dippy.core.model.models import Model as _Model
 from dippy.core.model.metadata import MetadataProtocol as _MetadataProtocol
 from dippy.core.sentinel import Sentinel as _Sentinel
-from typing import Any as _Any, Optional as _Optional, Union as _Union
+from typing import (
+    Any as _Any,
+    Generic as _Generic,
+    Optional as _Optional,
+    TypeVar as _TypeVar,
+    Union as _Union,
+)
 
 
+_T = _TypeVar("_T", bound=_Model)
 NOTSET = _Sentinel("NOTSET")
 
 
@@ -22,10 +29,10 @@ class URLArgField(_Field):
     ...
 
 
-class RequestModel(_DataModel):
+class RequestModel(_DataModel, _T):
     endpoint: str
     method: str
-    model: _Optional[_Model] = None
+    model: _Optional[_T] = None
 
     def _load_fields(self, *args, **kwargs) -> dict[str, _Any]:
         return {

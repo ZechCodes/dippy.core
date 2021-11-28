@@ -18,7 +18,7 @@ class CacheManager(Injectable):
         return self.__bevy_context__.build(model, data) if data else None
 
     def update(self, model: Type[m.ModelType], data: DiscordObject, *key: Key):
-        key = key if key else self.get_key(model, data)
+        key = key or self.get_key(model, data)
         self._caches[model.__dippy_cache_type__].update(key, data)
 
     def get_key(self, model: Type[m.ModelType], data: DiscordObject) -> Key:

@@ -31,7 +31,6 @@ class Model(bevy.Injectable):
     __dippy_cache_type__: typing.Optional[str] = None
 
     def __init_subclass__(cls, cache_type: typing.Optional[str] = None, **kwargs):
-        cls.cache = bevy.Inject(CacheManager)
         cls._build_fields()
         cls._set_cache_type(cache_type)
 
@@ -98,7 +97,9 @@ class Model(bevy.Injectable):
                 continue
 
             field: typing.Union[fields.Field, typing.Any] = getattr(cls, name, None)
-            if not field or not isinstance(field, fields.Field):
+            if field and isinstance(field, bevy.Injector):
+                continue
+            elif not field or not isinstance(field, fields.Field):
                 field = fields.Field(
                     key_name=name, default=fields.NOTSET if field is None else field
                 )
