@@ -1,11 +1,39 @@
 from __future__ import annotations
 from dippy.core.api.models.emoji import Emoji
 from dippy.core.datetime_helpers import datetime, from_timestamp
-from dippy.core.enums.messages import EmbedType, AllowedMentionsType
+from dippy.core.enums.messages import (
+    EmbedType,
+    AllowedMentionsType,
+    ComponentType,
+    ButtonStyle,
+)
 from dippy.core.model.fields import Field
 from dippy.core.model.models import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
+
+
+class Component(Model):
+    type: ComponentType
+    custom_id: Optional[str]
+    disabled: Optional[bool]
+    style: Optional[ButtonStyle]
+    label: Optional[str]
+    emoji: Optional[Emoji]
+    url: Optional[str]
+    options: Optional[list[ComponentOption]]
+    placeholder: Optional[str]
+    min_values: Optional[int]
+    max_values: Optional[int]
+    components: Optional[list[Component]]
+
+
+class ComponentOption(Model):
+    label: str
+    value: str
+    description: Optional[str]
+    emoji: Optional[Emoji]
+    default: Optional[bool]
 
 
 class MessageReference(Model):
