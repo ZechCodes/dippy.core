@@ -19,5 +19,4 @@ class GetGuild(RequestModel):
     model = Guild
 
     id: Snowflake = URLArgField(index=True)
-
-    with_counts: bool = QueryArgField()
+    with_counts: bool = QueryArgField(default=False)
