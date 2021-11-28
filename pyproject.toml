@@ -17,7 +17,7 @@ python = "^3.9"
 aiohttp = "^3.7.4"
 attrs = "^21.2.0"
 pendulum = "^2.1.2"
-bevy = "1.0.0b8"
+bevy = "1.0.0b9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
