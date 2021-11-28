@@ -24,7 +24,7 @@ from os import getenv
 async def start():
     async with DiscordRestClient(getenv("DISCORD_TOKEN", "")) as client:
         user_id = int(input("What is your Discord user ID? "))
-        resp = await client.request(GetUser(id=user_id))
+        resp = await client.request(GetUser(user_id))
         print(f"Hello {resp.username}!!!")
 
 
