@@ -1,16 +1,25 @@
 from __future__ import annotations
+from dippy.core.api.models.activity import Activity
+from dippy.core.api.models.applications import Application
+from dippy.core.api.models.stickers import Sticker, StickerItem
 from dippy.core.api.models.emoji import Emoji
+from dippy.core.api.models.guilds import Member
+from dippy.core.api.models.permissions import Role
+from dippy.core.api.models.users import User
 from dippy.core.datetime_helpers import datetime, from_timestamp
 from dippy.core.enums.messages import (
     EmbedType,
     AllowedMentionsType,
     ComponentType,
     ButtonStyle,
+    MessageType,
+    InteractionType,
 )
 from dippy.core.model.fields import Field
 from dippy.core.model.models import Model
 from dippy.core.snowflake import Snowflake
 from typing import Optional
+import dippy.core.api.models.channels as channels
 
 
 class Component(Model):
@@ -154,5 +163,42 @@ class AllowedMentions(Model):
     replied_user: bool
 
 
+class MessageInteraction(Model):
+    id: Snowflake
+    type: InteractionType
+    name: str
+    user: User
+
+
 class Message(Model):
-    ...
+    id: Snowflake
+    channel_id: Snowflake
+    guild_id: Optional[Snowflake]
+    author: User
+    member: Optional[Member]
+    content: str
+    timestamp: datetime
+    edited_timestamp: datetime
+    tts: bool
+    mention_everyone: bool
+    mentions: list[User]
+    mention_roles: list[Role]
+    mention_channels: list[ChannelMention]
+    attachments: list[Attachment]
+    embeds: list[Embed]
+    reactions: Optional[list[Reaction]]
+    nonce: Optional[str]
+    pinned: bool
+    webhook_id: Optional[Snowflake]
+    type: MessageType
+    activity: Optional[Activity]
+    application: Optional[Application]
+    application_id: Optional[Snowflake]
+    message_reference: Optional[MessageReference]
+    flags: Optional[int]
+    referenced_message: Optional[Message]
+    interaction: Optional[MessageInteraction]
+    thread: Optional[channels.Channel]
+    components: Optional[list[Component]]
+    sticker_items: Optional[StickerItem]
+    stickers: Optional[list[Sticker]]
