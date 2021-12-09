@@ -18,3 +18,9 @@ class Sticker(Model):
     guild_id: Optional[Snowflake]
     user: Optional[User]
     sort_value: Optional[int]
+
+
+class StickerItem(Model):
+    id: Snowflake
+    name: str
+    format_type: StickerFormatType
