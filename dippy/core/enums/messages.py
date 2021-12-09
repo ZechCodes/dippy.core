@@ -61,3 +61,10 @@ class ButtonStyle(IntEnum):
     SUCCESS = 3  # green
     DANGER = 4  # red
     LINK = 5  # grey, navigates to a URL
+
+
+class InteractionType(IntEnum):
+    PING = 1
+    APPLICATION_COMMAND = 2
+    MESSAGE_COMPONENT = 3
+    APPLICATION_COMMAND_AUTOCOMPLETE = 4
